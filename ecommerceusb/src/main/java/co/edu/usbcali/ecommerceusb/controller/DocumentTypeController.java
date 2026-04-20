@@ -1,9 +1,7 @@
 package co.edu.usbcali.ecommerceusb.controller;
 
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
-import co.edu.usbcali.ecommerceusb.mapper.DocumentTypeMapper;
-import co.edu.usbcali.ecommerceusb.model.DocumentType;
-import co.edu.usbcali.ecommerceusb.repository.DocumentTypeRepository;
+import co.edu.usbcali.ecommerceusb.service.DocumentTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,30 +17,17 @@ import java.util.List;
 public class DocumentTypeController {
 
     @Autowired
-    private DocumentTypeRepository documentTypeRepository;
+    private DocumentTypeService documentTypeService;
 
     @GetMapping("/all")
     public List<DocumentTypeResponse> getAll() {
-        // Invoca el Mapper para convertir la lista de DocumentType
-        // a una lista de DocumentTypeResponse
-        return DocumentTypeMapper.modelToDocumentTypeResponseList(
-                documentTypeRepository.findAll()
-        );
+        return documentTypeService.getDocumentTypes();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DocumentTypeResponse> getById(@PathVariable Integer id) {
-        // Consultar el Document Type en la base de datos
-        DocumentType documentType = documentTypeRepository.getReferenceById(id);
-
-        // Mapear o convertir al DTO (Response) DocumentTypeResponse
-        // Invocando el Mapper para convertir
-        DocumentTypeResponse documentTypeResponse =
-                DocumentTypeMapper.modelToDocumentTypeResponse(documentType);
-
-        // Retornar el ResponseEntity con el documentTypeResponse
+    public ResponseEntity<DocumentTypeResponse> getById(@PathVariable Integer id) throws Exception {
         return new ResponseEntity<>(
-                documentTypeResponse,
+                documentTypeService.getDocumentTypeById(id),
                 HttpStatus.OK
         );
     }
