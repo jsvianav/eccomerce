@@ -8,5 +8,5 @@ public interface UserService {
     List<UserResponse> getUsers();
     UserResponse getUserById(Integer id) throws Exception;
 
-    UserResponse getUserByEmail(String email);
+    UserResponse getUserByEmail(String email) throws Exception;
 }
