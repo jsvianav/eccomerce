@@ -134,19 +134,8 @@ public class UserServiceImpl implements UserService {
             throw new Exception("Ya existe un usuario con el documento y tipo de documento ingresados");
         }
 
-        User user = User.builder()
-                .fullName(createUserRequest.getFullName())
-                .phone(createUserRequest.getPhone())
-                .email(createUserRequest.getEmail())
-                .documentType(documentType)
-                .documentNumber(createUserRequest.getDocumentNumber())
-                .birthDate(LocalDate.parse(
-                        createUserRequest.getBirthDate(),
-                        DateTimeFormatter.ofPattern("yyyy-MM-dd")))
-                .country(createUserRequest.getCountry())
-                .address(createUserRequest.getAddress())
-                .build();
-        user = userRepository.save(user);
+        User user = UserMapper.createUserRequestToUser(createUserRequest, documentType);
+        userRepository.save(user);
         UserResponse userResponse = UserMapper.modelToUserResponse(user);
         return userResponse;
 
