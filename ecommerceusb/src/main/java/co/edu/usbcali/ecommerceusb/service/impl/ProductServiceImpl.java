@@ -63,17 +63,12 @@ public class ProductServiceImpl implements ProductService {
 
         // Validar campo available
         if (Objects.isNull(createProductRequest.getAvailable())) {
-            throw new Exception("El campo available no puede ser nulo");
-        }
-
-        // Validar que no exista un producto con el mismo nombre
-        if (productRepository.existsByName(createProductRequest.getName())) {
-            throw new Exception("Ya existe un producto con el nombre ingresado");
+            throw new Exception("El campo available no puede estar nulo");
         }
 
         // Construir y guardar el producto
         Product product = Product.builder()
-                .name(createProductRequest.getName())
+                .name(createProductRequest.getName().trim())
                 .description(createProductRequest.getDescription())
                 .price(createProductRequest.getPrice())
                 .available(createProductRequest.getAvailable())

@@ -54,21 +54,19 @@ public class CategoryServiceImpl implements CategoryService {
             throw new Exception("El campo name no puede estar nulo ni vacío");
         }
 
-        // Validar que no exista una categoría con el mismo nombre
-        if (categoryRepository.existsByName(createCategoryRequest.getName())) {
-            throw new Exception("Ya existe una categoría con el nombre ingresado");
-        }
-
-        // Resolver categoría padre si se envía parentId
+        // Resolver categoría padre (opcional)
         Category parent = null;
         if (createCategoryRequest.getParentId() != null) {
+            if (createCategoryRequest.getParentId() <= 0) {
+                throw new Exception("El campo parentId debe ser mayor a 0");
+            }
             parent = categoryRepository.findById(createCategoryRequest.getParentId())
                     .orElseThrow(() -> new Exception("La categoría padre no existe"));
         }
 
         // Construir y guardar la categoría
         Category category = Category.builder()
-                .name(createCategoryRequest.getName())
+                .name(createCategoryRequest.getName().trim())
                 .parent(parent)
                 .createdAt(OffsetDateTime.now())
                 .build();
