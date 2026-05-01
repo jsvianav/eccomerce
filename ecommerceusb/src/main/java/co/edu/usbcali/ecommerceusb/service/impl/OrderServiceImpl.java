@@ -96,7 +96,7 @@ public class OrderServiceImpl implements OrderService {
                 .user(user)
                 .status(orderStatus)
                 .totalAmount(createOrderRequest.getTotalAmount())
-                .currency(createOrderRequest.getCurrency())
+                .currency(createOrderRequest.getCurrency().trim().toUpperCase())
                 .createdAt(OffsetDateTime.now())
                 .build();
 
