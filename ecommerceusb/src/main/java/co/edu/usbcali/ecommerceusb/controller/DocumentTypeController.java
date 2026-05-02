@@ -3,32 +3,29 @@ package co.edu.usbcali.ecommerceusb.controller;
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
 import co.edu.usbcali.ecommerceusb.service.DocumentTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/document-type")
+@RequestMapping("/documentType")
 public class DocumentTypeController {
 
     @Autowired
     private DocumentTypeService documentTypeService;
 
-    @GetMapping("/all")
-    public List<DocumentTypeResponse> getAll() {
-        return documentTypeService.getDocumentTypes();
+    @GetMapping
+    public ResponseEntity<List<DocumentTypeResponse>> getDocumentTypes() {
+        return ResponseEntity.ok(documentTypeService.getDocumentTypes());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DocumentTypeResponse> getById(@PathVariable Integer id) throws Exception {
-        return new ResponseEntity<>(
-                documentTypeService.getDocumentTypeById(id),
-                HttpStatus.OK
-        );
+    public ResponseEntity<DocumentTypeResponse> getDocumentTypeById(@PathVariable Integer id) {
+        try {
+            return ResponseEntity.ok(documentTypeService.getDocumentTypeById(id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

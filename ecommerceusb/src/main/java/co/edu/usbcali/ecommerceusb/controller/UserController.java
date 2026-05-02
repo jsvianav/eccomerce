@@ -4,7 +4,6 @@ import co.edu.usbcali.ecommerceusb.dto.CreateUserRequest;
 import co.edu.usbcali.ecommerceusb.dto.UserResponse;
 import co.edu.usbcali.ecommerceusb.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,27 +16,26 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/all")
-    public List<UserResponse> getAll() {
-        return userService.getUsers();
+    @GetMapping
+    public ResponseEntity<List<UserResponse>> getUsers() {
+        return ResponseEntity.ok(userService.getUsers());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Integer id) throws Exception {
-        return new ResponseEntity<>(userService.getUserById(id),
-                HttpStatus.OK);
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Integer id) {
+        try {
+            return ResponseEntity.ok(userService.getUserById(id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @GetMapping("/email/{email}")
-    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email) throws Exception {
-        return new ResponseEntity<>(
-                userService.getUserByEmail(email),
-                HttpStatus.OK
-        );
-    }
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@RequestBody  CreateUserRequest createUserRequest) throws Exception {
-        return new ResponseEntity<>(userService.createUser(createUserRequest),
-                HttpStatus.CREATED);
+    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest createUserRequest) {
+        try {
+            return ResponseEntity.ok(userService.createUser(createUserRequest));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

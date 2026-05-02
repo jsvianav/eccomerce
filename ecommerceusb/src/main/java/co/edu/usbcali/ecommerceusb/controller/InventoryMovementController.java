@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/inventory-movements")
+@RequestMapping("/inventoryMovement")
 public class InventoryMovementController {
 
     @Autowired
@@ -34,8 +34,7 @@ public class InventoryMovementController {
     public ResponseEntity<InventoryMovementResponse> createInventoryMovement(
             @RequestBody CreateInventoryMovementRequest createInventoryMovementRequest) {
         try {
-            return ResponseEntity.ok(
-                    inventoryMovementService.createInventoryMovement(createInventoryMovementRequest));
+            return ResponseEntity.ok(inventoryMovementService.createInventoryMovement(createInventoryMovementRequest));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
