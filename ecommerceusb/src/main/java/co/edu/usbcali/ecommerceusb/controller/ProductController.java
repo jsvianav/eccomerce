@@ -22,21 +22,21 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable Integer id) {
+    public ResponseEntity<?> getProductById(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok(productService.getProductById(id));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(
+    public ResponseEntity<?> createProduct(
             @RequestBody CreateProductRequest createProductRequest) {
         try {
             return ResponseEntity.ok(productService.createProduct(createProductRequest));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

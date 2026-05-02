@@ -22,21 +22,21 @@ public class InventoryMovementController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<InventoryMovementResponse> getInventoryMovementById(@PathVariable Integer id) {
+    public ResponseEntity<?> getInventoryMovementById(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok(inventoryMovementService.getInventoryMovementById(id));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping
-    public ResponseEntity<InventoryMovementResponse> createInventoryMovement(
+    public ResponseEntity<?> createInventoryMovement(
             @RequestBody CreateInventoryMovementRequest createInventoryMovementRequest) {
         try {
             return ResponseEntity.ok(inventoryMovementService.createInventoryMovement(createInventoryMovementRequest));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

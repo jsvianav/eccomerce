@@ -22,21 +22,21 @@ public class PaymentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PaymentResponse> getPaymentById(@PathVariable Integer id) {
+    public ResponseEntity<?> getPaymentById(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok(paymentService.getPaymentById(id));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping
-    public ResponseEntity<PaymentResponse> createPayment(
+    public ResponseEntity<?> createPayment(
             @RequestBody CreatePaymentRequest createPaymentRequest) {
         try {
             return ResponseEntity.ok(paymentService.createPayment(createPaymentRequest));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

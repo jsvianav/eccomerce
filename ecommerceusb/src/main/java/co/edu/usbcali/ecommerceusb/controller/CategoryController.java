@@ -22,21 +22,21 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Integer id) {
+    public ResponseEntity<?> getCategoryById(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok(categoryService.getCategoryById(id));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponse> createCategory(
+    public ResponseEntity<?> createCategory(
             @RequestBody CreateCategoryRequest createCategoryRequest) {
         try {
             return ResponseEntity.ok(categoryService.createCategory(createCategoryRequest));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

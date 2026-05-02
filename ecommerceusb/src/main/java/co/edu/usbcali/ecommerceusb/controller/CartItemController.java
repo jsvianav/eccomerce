@@ -22,21 +22,21 @@ public class CartItemController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CartItemResponse> getCartItemById(@PathVariable Integer id) {
+    public ResponseEntity<?> getCartItemById(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok(cartItemService.getCartItemById(id));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping
-    public ResponseEntity<CartItemResponse> createCartItem(
+    public ResponseEntity<?> createCartItem(
             @RequestBody CreateCartItemRequest createCartItemRequest) {
         try {
             return ResponseEntity.ok(cartItemService.createCartItem(createCartItemRequest));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

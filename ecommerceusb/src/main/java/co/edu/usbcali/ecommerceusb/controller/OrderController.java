@@ -22,21 +22,21 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderResponse> getOrderById(@PathVariable Integer id) {
+    public ResponseEntity<?> getOrderById(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok(orderService.getOrderById(id));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(
+    public ResponseEntity<?> createOrder(
             @RequestBody CreateOrderRequest createOrderRequest) {
         try {
             return ResponseEntity.ok(orderService.createOrder(createOrderRequest));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

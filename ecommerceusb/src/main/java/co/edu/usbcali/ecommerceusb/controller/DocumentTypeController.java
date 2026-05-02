@@ -21,11 +21,11 @@ public class DocumentTypeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DocumentTypeResponse> getDocumentTypeById(@PathVariable Integer id) {
+    public ResponseEntity<?> getDocumentTypeById(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok(documentTypeService.getDocumentTypeById(id));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }
