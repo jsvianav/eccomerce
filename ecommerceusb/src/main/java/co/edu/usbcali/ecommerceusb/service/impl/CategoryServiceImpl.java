@@ -2,7 +2,6 @@ package co.edu.usbcali.ecommerceusb.service.impl;
 
 import co.edu.usbcali.ecommerceusb.dto.CategoryResponse;
 import co.edu.usbcali.ecommerceusb.dto.CreateCategoryRequest;
-import co.edu.usbcali.ecommerceusb.dto.UpdateCategoryRequest;
 import co.edu.usbcali.ecommerceusb.mapper.CategoryMapper;
 import co.edu.usbcali.ecommerceusb.model.Category;
 import co.edu.usbcali.ecommerceusb.repository.CategoryRepository;
@@ -44,7 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryResponse updateCategory(Integer id, UpdateCategoryRequest req) throws Exception {
+    public CategoryResponse updateCategory(Integer id, CreateCategoryRequest req) throws Exception {
         if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new Exception(String.format("Categoría no encontrada con el id: %d", id)));

@@ -29,79 +29,61 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderResponse> getOrders() {
         List<Order> orders = orderRepository.findAll();
-
-        if (orders.isEmpty()) {
-            return List.of();
-        }
-
+        if (orders.isEmpty()) return List.of();
         return OrderMapper.modelToOrderResponseList(orders);
     }
 
     @Override
     public OrderResponse getOrderById(Integer id) throws Exception {
-
-        if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para buscar");
-        }
-
+        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para buscar");
         Order order = orderRepository.findById(id)
-                .orElseThrow(() ->
-                        new Exception(
-                                String.format("Orden no encontrada con el id: %d", id)));
-
+                .orElseThrow(() -> new Exception(String.format("Orden no encontrada con el id: %d", id)));
         return OrderMapper.modelToOrderResponse(order);
     }
 
     @Override
-    public OrderResponse createOrder(CreateOrderRequest createOrderRequest) throws Exception {
-
-        // Validar campo userId
-        if (Objects.isNull(createOrderRequest.getUserId()) ||
-                createOrderRequest.getUserId() <= 0) {
+    public OrderResponse createOrder(CreateOrderRequest req) throws Exception {
+        if (Objects.isNull(req.getUserId()) || req.getUserId() <= 0)
             throw new Exception("El campo userId debe contener un valor mayor a 0");
-        }
-
-        // Validar campo status
-        if (Objects.isNull(createOrderRequest.getStatus()) ||
-                createOrderRequest.getStatus().isBlank()) {
+        if (Objects.isNull(req.getStatus()) || req.getStatus().isBlank())
             throw new Exception("El campo status no puede estar nulo ni vacío");
-        }
-
-        // Validar que el status sea un valor válido
         OrderStatus orderStatus;
         try {
-            orderStatus = OrderStatus.valueOf(createOrderRequest.getStatus().toUpperCase());
+            orderStatus = OrderStatus.valueOf(req.getStatus().toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new Exception("El status debe ser CREATED, PAID o CANCELLED");
         }
-
-        // Validar campo totalAmount
-        if (Objects.isNull(createOrderRequest.getTotalAmount()) ||
-                createOrderRequest.getTotalAmount().compareTo(BigDecimal.ZERO) < 0) {
+        if (Objects.isNull(req.getTotalAmount()) || req.getTotalAmount().compareTo(BigDecimal.ZERO) < 0)
             throw new Exception("El campo totalAmount no puede ser nulo ni negativo");
-        }
-
-        // Validar campo currency
-        if (Objects.isNull(createOrderRequest.getCurrency()) ||
-                createOrderRequest.getCurrency().isBlank()) {
+        if (Objects.isNull(req.getCurrency()) || req.getCurrency().isBlank())
             throw new Exception("El campo currency no puede estar nulo ni vacío");
-        }
-
-        // Validar que el usuario existe
-        User user = userRepository.findById(createOrderRequest.getUserId())
+        User user = userRepository.findById(req.getUserId())
                 .orElseThrow(() -> new Exception("El usuario no existe"));
-
-        // Construir y guardar la orden
         Order order = Order.builder()
-                .user(user)
-                .status(orderStatus)
-                .totalAmount(createOrderRequest.getTotalAmount())
-                .currency(createOrderRequest.getCurrency().trim().toUpperCase())
+                .user(user).status(orderStatus)
+                .totalAmount(req.getTotalAmount())
+                .currency(req.getCurrency().trim().toUpperCase())
                 .createdAt(OffsetDateTime.now())
                 .build();
+        return OrderMapper.modelToOrderResponse(orderRepository.save(order));
+    }
 
-        Order savedOrder = orderRepository.save(order);
-
-        return OrderMapper.modelToOrderResponse(savedOrder);
+    @Override
+    public OrderResponse updateOrder(Integer id, CreateOrderRequest req) throws Exception {
+        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new Exception(String.format("Orden no encontrada con el id: %d", id)));
+        if (req.getStatus() != null && !req.getStatus().isBlank()) {
+            try {
+                order.setStatus(OrderStatus.valueOf(req.getStatus().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new Exception("El status debe ser CREATED, PAID o CANCELLED");
+            }
+        }
+        if (req.getTotalAmount() != null && req.getTotalAmount().compareTo(BigDecimal.ZERO) >= 0)
+            order.setTotalAmount(req.getTotalAmount());
+        if (req.getCurrency() != null && !req.getCurrency().isBlank())
+            order.setCurrency(req.getCurrency().trim().toUpperCase());
+        return OrderMapper.modelToOrderResponse(orderRepository.save(order));
     }
 }

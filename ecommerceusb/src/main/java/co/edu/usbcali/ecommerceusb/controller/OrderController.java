@@ -31,10 +31,18 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createOrder(
-            @RequestBody CreateOrderRequest createOrderRequest) {
+    public ResponseEntity<?> createOrder(@RequestBody CreateOrderRequest createOrderRequest) {
         try {
             return ResponseEntity.ok(orderService.createOrder(createOrderRequest));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateOrder(@PathVariable Integer id, @RequestBody CreateOrderRequest createOrderRequest) {
+        try {
+            return ResponseEntity.ok(orderService.updateOrder(id, createOrderRequest));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

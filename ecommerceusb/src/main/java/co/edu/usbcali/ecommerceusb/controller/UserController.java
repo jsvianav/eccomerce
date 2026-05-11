@@ -1,7 +1,6 @@
 package co.edu.usbcali.ecommerceusb.controller;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateUserRequest;
-import co.edu.usbcali.ecommerceusb.dto.UpdateUserRequest;
 import co.edu.usbcali.ecommerceusb.dto.UserResponse;
 import co.edu.usbcali.ecommerceusb.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,9 +40,9 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody UpdateUserRequest updateUserRequest) {
+    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody CreateUserRequest createUserRequest) {
         try {
-            return ResponseEntity.ok(userService.updateUser(id, updateUserRequest));
+            return ResponseEntity.ok(userService.updateUser(id, createUserRequest));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

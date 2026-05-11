@@ -2,7 +2,6 @@ package co.edu.usbcali.ecommerceusb.service.impl;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateProductRequest;
 import co.edu.usbcali.ecommerceusb.dto.ProductResponse;
-import co.edu.usbcali.ecommerceusb.dto.UpdateProductRequest;
 import co.edu.usbcali.ecommerceusb.mapper.ProductMapper;
 import co.edu.usbcali.ecommerceusb.model.Category;
 import co.edu.usbcali.ecommerceusb.model.Product;
@@ -50,7 +49,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse updateProduct(Integer id, UpdateProductRequest req) throws Exception {
+    public ProductResponse updateProduct(Integer id, CreateProductRequest req) throws Exception {
         if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new Exception(String.format("Producto no encontrado con el id: %d", id)));
