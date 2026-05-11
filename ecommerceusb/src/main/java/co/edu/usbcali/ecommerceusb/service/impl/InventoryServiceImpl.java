@@ -64,7 +64,6 @@ public class InventoryServiceImpl implements InventoryService {
         Inventory inventory = inventoryRepository.findById(id)
                 .orElseThrow(() -> new Exception(String.format("Inventario no encontrado con el id: %d", id)));
         if (req.getQuantity() != null && req.getQuantity() >= 0) inventory.setStock(req.getQuantity());
-        if (req.getMinStock() != null && req.getMinStock() >= 0) inventory.setMinStock(req.getMinStock());
         inventory.setUpdatedAt(OffsetDateTime.now());
         return InventoryMapper.modelToInventoryResponse(inventoryRepository.save(inventory));
     }

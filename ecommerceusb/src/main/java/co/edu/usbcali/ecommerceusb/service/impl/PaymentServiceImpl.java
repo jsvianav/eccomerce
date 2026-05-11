@@ -13,7 +13,6 @@ import co.edu.usbcali.ecommerceusb.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -74,8 +73,6 @@ public class PaymentServiceImpl implements PaymentService {
         if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
         Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new Exception(String.format("Pago no encontrado con el id: %d", id)));
-        if (req.getAmount() != null && req.getAmount().compareTo(BigDecimal.ZERO) >= 0)
-            payment.setAmount(req.getAmount());
         if (req.getStatus() != null && !req.getStatus().isBlank()) {
             try {
                 payment.setStatus(PaymentStatus.valueOf(req.getStatus().toUpperCase()));

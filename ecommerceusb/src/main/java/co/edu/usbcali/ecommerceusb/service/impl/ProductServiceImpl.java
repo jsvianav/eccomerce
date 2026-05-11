@@ -4,14 +4,13 @@ import co.edu.usbcali.ecommerceusb.dto.CreateProductRequest;
 import co.edu.usbcali.ecommerceusb.dto.ProductResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateProductRequest;
 import co.edu.usbcali.ecommerceusb.mapper.ProductMapper;
-import co.edu.usbcali.ecommerceusb.model.Category;
 import co.edu.usbcali.ecommerceusb.model.Product;
-import co.edu.usbcali.ecommerceusb.repository.CategoryRepository;
 import co.edu.usbcali.ecommerceusb.repository.ProductRepository;
 import co.edu.usbcali.ecommerceusb.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,9 +19,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductRepository productRepository;
-
-    @Autowired
-    private CategoryRepository categoryRepository;
 
     @Override
     public List<ProductResponse> getProducts() {
@@ -43,7 +39,8 @@ public class ProductServiceImpl implements ProductService {
     public ProductResponse createProduct(CreateProductRequest req) throws Exception {
         if (Objects.isNull(req.getName()) || req.getName().isBlank())
             throw new Exception("El campo name no puede ser nulo ni vacío");
-        if (req.getPrice() == null) throw new Exception("El campo price no puede ser nulo");
+        if (req.getPrice() == null)
+            throw new Exception("El campo price no puede ser nulo");
         Product product = ProductMapper.createProductRequestToProduct(req);
         productRepository.save(product);
         return ProductMapper.modelToProductResponse(product);
@@ -58,11 +55,7 @@ public class ProductServiceImpl implements ProductService {
         if (req.getDescription() != null && !req.getDescription().isBlank()) product.setDescription(req.getDescription());
         if (req.getPrice() != null) product.setPrice(req.getPrice());
         if (req.getAvailable() != null) product.setAvailable(req.getAvailable());
-        if (req.getCategoryId() != null && req.getCategoryId() > 0) {
-            Category category = categoryRepository.findById(req.getCategoryId())
-                    .orElseThrow(() -> new Exception("La categoría no existe"));
-            product.setCategory(category);
-        }
+        product.setUpdatedAt(OffsetDateTime.now());
         productRepository.save(product);
         return ProductMapper.modelToProductResponse(product);
     }

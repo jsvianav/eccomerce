@@ -47,30 +47,30 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
     }
 
     @Override
-    public InventoryMovementResponse createInventoryMovement(CreateInventoryMovementRequest createInventoryMovementRequest) throws Exception {
-        if (Objects.isNull(createInventoryMovementRequest.getProductId()) || createInventoryMovementRequest.getProductId() <= 0)
+    public InventoryMovementResponse createInventoryMovement(CreateInventoryMovementRequest req) throws Exception {
+        if (Objects.isNull(req.getProductId()) || req.getProductId() <= 0)
             throw new Exception("El campo productId debe contener un valor mayor a 0");
-        if (Objects.isNull(createInventoryMovementRequest.getType()) || createInventoryMovementRequest.getType().isBlank())
+        if (Objects.isNull(req.getType()) || req.getType().isBlank())
             throw new Exception("El campo type no puede estar nulo ni vacío");
         MovementType movementType;
         try {
-            movementType = MovementType.valueOf(createInventoryMovementRequest.getType().toUpperCase());
+            movementType = MovementType.valueOf(req.getType().toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new Exception("El type debe ser DEBIT, CREDIT, RESERVE o RELEASE");
         }
-        if (Objects.isNull(createInventoryMovementRequest.getQty()) || createInventoryMovementRequest.getQty() <= 0)
+        if (Objects.isNull(req.getQty()) || req.getQty() <= 0)
             throw new Exception("El campo qty debe ser mayor a 0");
-        Product product = productRepository.findById(createInventoryMovementRequest.getProductId())
+        Product product = productRepository.findById(req.getProductId())
                 .orElseThrow(() -> new Exception("El producto no existe"));
         Order order = null;
-        if (createInventoryMovementRequest.getOrderId() != null) {
-            order = orderRepository.findById(createInventoryMovementRequest.getOrderId())
+        if (req.getOrderId() != null) {
+            order = orderRepository.findById(req.getOrderId())
                     .orElseThrow(() -> new Exception("La orden no existe"));
         }
         InventoryMovement movement = InventoryMovement.builder()
                 .product(product).order(order)
                 .type(movementType)
-                .qty(createInventoryMovementRequest.getQty())
+                .qty(req.getQty())
                 .createdAt(OffsetDateTime.now())
                 .build();
         return InventoryMovementMapper.modelToInventoryMovementResponse(inventoryMovementRepository.save(movement));
@@ -89,7 +89,6 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
                 throw new Exception("El type debe ser DEBIT, CREDIT, RESERVE o RELEASE");
             }
         }
-        if (req.getReason() != null && !req.getReason().isBlank()) movement.setReason(req.getReason());
         return InventoryMovementMapper.modelToInventoryMovementResponse(inventoryMovementRepository.save(movement));
     }
 }
