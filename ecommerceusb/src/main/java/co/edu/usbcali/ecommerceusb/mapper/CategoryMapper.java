@@ -1,8 +1,10 @@
 package co.edu.usbcali.ecommerceusb.mapper;
 
 import co.edu.usbcali.ecommerceusb.dto.CategoryResponse;
+import co.edu.usbcali.ecommerceusb.dto.CreateCategoryRequest;
 import co.edu.usbcali.ecommerceusb.model.Category;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public class CategoryMapper {
@@ -17,5 +19,12 @@ public class CategoryMapper {
 
     public static List<CategoryResponse> modelToCategoryResponseList(List<Category> categories) {
         return categories.stream().map(CategoryMapper::modelToCategoryResponse).toList();
+    }
+
+    public static Category createCategoryRequestToCategory(CreateCategoryRequest req) {
+        return Category.builder()
+                .name(req.getName())
+                .createdAt(OffsetDateTime.now())
+                .build();
     }
 }

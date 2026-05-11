@@ -49,7 +49,6 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new Exception(String.format("Categoría no encontrada con el id: %d", id)));
         if (req.getName() != null && !req.getName().isBlank()) category.setName(req.getName());
-        if (req.getDescription() != null && !req.getDescription().isBlank()) category.setDescription(req.getDescription());
         categoryRepository.save(category);
         return CategoryMapper.modelToCategoryResponse(category);
     }
