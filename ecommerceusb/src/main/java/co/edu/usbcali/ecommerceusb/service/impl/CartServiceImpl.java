@@ -2,6 +2,7 @@ package co.edu.usbcali.ecommerceusb.service.impl;
 
 import co.edu.usbcali.ecommerceusb.dto.CartResponse;
 import co.edu.usbcali.ecommerceusb.dto.CreateCartRequest;
+import co.edu.usbcali.ecommerceusb.dto.UpdateCartRequest;
 import co.edu.usbcali.ecommerceusb.mapper.CartMapper;
 import co.edu.usbcali.ecommerceusb.model.Cart;
 import co.edu.usbcali.ecommerceusb.model.Cart.CartStatus;
@@ -62,7 +63,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartResponse updateCart(Integer id, CreateCartRequest req) throws Exception {
+    public CartResponse updateCart(Integer id, UpdateCartRequest req) throws Exception {
         if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
         Cart cart = cartRepository.findById(id)
                 .orElseThrow(() -> new Exception(String.format("Carrito no encontrado con el id: %d", id)));

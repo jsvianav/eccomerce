@@ -1,6 +1,7 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
 
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
+import co.edu.usbcali.ecommerceusb.dto.UpdateDocumentTypeRequest;
 import co.edu.usbcali.ecommerceusb.mapper.DocumentTypeMapper;
 import co.edu.usbcali.ecommerceusb.model.DocumentType;
 import co.edu.usbcali.ecommerceusb.repository.DocumentTypeRepository;
@@ -32,7 +33,7 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     }
 
     @Override
-    public DocumentTypeResponse updateDocumentType(Integer id, DocumentTypeResponse req) throws Exception {
+    public DocumentTypeResponse updateDocumentType(Integer id, UpdateDocumentTypeRequest req) throws Exception {
         if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
         DocumentType documentType = documentTypeRepository.findById(id)
                 .orElseThrow(() -> new Exception(String.format("Tipo de documento no encontrado con el id: %d", id)));

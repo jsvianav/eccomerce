@@ -2,6 +2,7 @@ package co.edu.usbcali.ecommerceusb.controller;
 
 import co.edu.usbcali.ecommerceusb.dto.CartResponse;
 import co.edu.usbcali.ecommerceusb.dto.CreateCartRequest;
+import co.edu.usbcali.ecommerceusb.dto.UpdateCartRequest;
 import co.edu.usbcali.ecommerceusb.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -40,9 +41,9 @@ public class CartController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCart(@PathVariable Integer id, @RequestBody CreateCartRequest createCartRequest) {
+    public ResponseEntity<?> updateCart(@PathVariable Integer id, @RequestBody UpdateCartRequest updateCartRequest) {
         try {
-            return ResponseEntity.ok(cartService.updateCart(id, createCartRequest));
+            return ResponseEntity.ok(cartService.updateCart(id, updateCartRequest));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
