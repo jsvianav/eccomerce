@@ -2,6 +2,7 @@ package co.edu.usbcali.ecommerceusb.controller;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateInventoryRequest;
 import co.edu.usbcali.ecommerceusb.dto.InventoryResponse;
+import co.edu.usbcali.ecommerceusb.dto.UpdateInventoryRequest;
 import co.edu.usbcali.ecommerceusb.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,10 +32,18 @@ public class InventoryController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createInventory(
-            @RequestBody CreateInventoryRequest createInventoryRequest) {
+    public ResponseEntity<?> createInventory(@RequestBody CreateInventoryRequest createInventoryRequest) {
         try {
             return ResponseEntity.ok(inventoryService.createInventory(createInventoryRequest));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateInventory(@PathVariable Integer id, @RequestBody UpdateInventoryRequest updateInventoryRequest) {
+        try {
+            return ResponseEntity.ok(inventoryService.updateInventory(id, updateInventoryRequest));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

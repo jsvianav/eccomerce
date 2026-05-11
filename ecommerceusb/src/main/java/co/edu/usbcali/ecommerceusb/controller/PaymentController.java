@@ -2,6 +2,7 @@ package co.edu.usbcali.ecommerceusb.controller;
 
 import co.edu.usbcali.ecommerceusb.dto.CreatePaymentRequest;
 import co.edu.usbcali.ecommerceusb.dto.PaymentResponse;
+import co.edu.usbcali.ecommerceusb.dto.UpdatePaymentRequest;
 import co.edu.usbcali.ecommerceusb.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,10 +32,18 @@ public class PaymentController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createPayment(
-            @RequestBody CreatePaymentRequest createPaymentRequest) {
+    public ResponseEntity<?> createPayment(@RequestBody CreatePaymentRequest createPaymentRequest) {
         try {
             return ResponseEntity.ok(paymentService.createPayment(createPaymentRequest));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updatePayment(@PathVariable Integer id, @RequestBody UpdatePaymentRequest updatePaymentRequest) {
+        try {
+            return ResponseEntity.ok(paymentService.updatePayment(id, updatePaymentRequest));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
