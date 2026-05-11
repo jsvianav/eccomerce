@@ -1,6 +1,7 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
 
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
+import co.edu.usbcali.ecommerceusb.dto.UpdateDocumentTypeRequest;
 import co.edu.usbcali.ecommerceusb.mapper.DocumentTypeMapper;
 import co.edu.usbcali.ecommerceusb.model.DocumentType;
 import co.edu.usbcali.ecommerceusb.repository.DocumentTypeRepository;
@@ -19,26 +20,26 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     @Override
     public List<DocumentTypeResponse> getDocumentTypes() {
         List<DocumentType> documentTypes = documentTypeRepository.findAll();
-
-        if (documentTypes.isEmpty()) {
-            return List.of();
-        }
-
+        if (documentTypes.isEmpty()) return List.of();
         return DocumentTypeMapper.modelToDocumentTypeResponseList(documentTypes);
     }
 
     @Override
     public DocumentTypeResponse getDocumentTypeById(Integer id) throws Exception {
-
-        if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para buscar");
-        }
-
+        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para buscar");
         DocumentType documentType = documentTypeRepository.findById(id)
-                .orElseThrow(() ->
-                        new Exception(
-                                String.format("Tipo de documento no encontrado con el id: %d", id)));
+                .orElseThrow(() -> new Exception(String.format("Tipo de documento no encontrado con el id: %d", id)));
+        return DocumentTypeMapper.modelToDocumentTypeResponse(documentType);
+    }
 
+    @Override
+    public DocumentTypeResponse updateDocumentType(Integer id, UpdateDocumentTypeRequest req) throws Exception {
+        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
+        DocumentType documentType = documentTypeRepository.findById(id)
+                .orElseThrow(() -> new Exception(String.format("Tipo de documento no encontrado con el id: %d", id)));
+        if (req.getName() != null && !req.getName().isBlank()) documentType.setName(req.getName());
+        if (req.getCode() != null && !req.getCode().isBlank()) documentType.setCode(req.getCode());
+        documentTypeRepository.save(documentType);
         return DocumentTypeMapper.modelToDocumentTypeResponse(documentType);
     }
 }

@@ -1,5 +1,6 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
 import co.edu.usbcali.ecommerceusb.dto.CreateUserRequest;
+import co.edu.usbcali.ecommerceusb.dto.UpdateUserRequest;
 import co.edu.usbcali.ecommerceusb.dto.UserResponse;
 import co.edu.usbcali.ecommerceusb.mapper.UserMapper;
 import co.edu.usbcali.ecommerceusb.model.DocumentType;
@@ -10,9 +11,8 @@ import co.edu.usbcali.ecommerceusb.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,118 +27,79 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponse> getUsers() {
-        List<User> users = userRepository.findAll(); // ← agregado
-
-        if (users.isEmpty()) {
-            return List.of();
-        }
-
-        List<UserResponse> userResponses = UserMapper.modelToUserResponse(users);
-        return userResponses;
+        List<User> users = userRepository.findAll();
+        if (users.isEmpty()) return List.of();
+        return UserMapper.modelToUserResponse(users);
     }
+
     @Override
     public UserResponse getUserById(Integer id) throws Exception {
-
-        if (id == null || id <= 0) {
-            throw new Exception("Debe ingresar el id para buscar");
-        }
-
-
+        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para buscar");
         User user = userRepository.findById(id)
-                .orElseThrow(() ->
-                        new Exception(
-                                String.format("Usuario no encontrado con el id: %d", id)));
-
-
-        UserResponse userResponse = UserMapper.modelToUserResponse(user);
-
-        return userResponse;
+                .orElseThrow(() -> new Exception(String.format("Usuario no encontrado con el id: %d", id)));
+        return UserMapper.modelToUserResponse(user);
     }
+
     @Override
     public UserResponse getUserByEmail(String email) throws Exception {
-
-        if(email == null || email.isBlank()){
-            throw new Exception("Debe ingresar email");
-        }
-
+        if (email == null || email.isBlank()) throw new Exception("Debe ingresar email");
         User userByEmail = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new Exception(
-                                String.format("Usuario no encontrado con el email: %s", email)));
-
+                .orElseThrow(() -> new Exception(String.format("Usuario no encontrado con el email: %s", email)));
         return UserMapper.modelToUserResponse(userByEmail);
     }
+
     @Override
     public UserResponse createUser(CreateUserRequest createUserRequest) throws Exception {
-
-        // Validar que el campo fullName no sea nulo ni vacío
-        if (Objects.isNull(createUserRequest.getFullName()) ||
-                createUserRequest.getFullName().isBlank()) {
+        if (Objects.isNull(createUserRequest.getFullName()) || createUserRequest.getFullName().isBlank())
             throw new Exception("El campo fullName no puede ser nulo ni vacío");
-        }
-
-        // Validar que el campo phone no sea nulo ni vacío
-        if (Objects.isNull(createUserRequest.getPhone()) ||
-                createUserRequest.getPhone().isBlank()) {
+        if (Objects.isNull(createUserRequest.getPhone()) || createUserRequest.getPhone().isBlank())
             throw new Exception("El campo phone no puede ser nulo ni vacío");
-        }
-
-        // Validar que el campo email no sea nulo ni vacío
-        if (Objects.isNull(createUserRequest.getEmail()) ||
-                createUserRequest.getEmail().isBlank()) {
+        if (Objects.isNull(createUserRequest.getEmail()) || createUserRequest.getEmail().isBlank())
             throw new Exception("El campo email no puede ser nulo ni vacío");
-        }
-
-        // Validar que el campo documentTypeId no sea nulo ni <= 0
-        if (createUserRequest.getDocumentTypeId() == null ||
-                createUserRequest.getDocumentTypeId() <= 0) {
+        if (createUserRequest.getDocumentTypeId() == null || createUserRequest.getDocumentTypeId() <= 0)
             throw new Exception("El campo documentTypeId debe contener un valor mayor a 0");
-        }
-
-        // Validar campo documentNumber no sea nulo ni vacío
-        if (Objects.isNull(createUserRequest.getDocumentNumber()) ||
-                createUserRequest.getDocumentNumber().isBlank()) {
+        if (Objects.isNull(createUserRequest.getDocumentNumber()) || createUserRequest.getDocumentNumber().isBlank())
             throw new Exception("El campo documentNumber no puede estar nulo ni vacío");
-        }
-
-        // Validar campo birthDate
-        if (Objects.isNull(createUserRequest.getBirthDate()) ||
-                createUserRequest.getBirthDate().isBlank()) {
+        if (Objects.isNull(createUserRequest.getBirthDate()) || createUserRequest.getBirthDate().isBlank())
             throw new Exception("El campo birthDate no puede estar nulo ni vacío");
-        }
-
-        // Validar campo country
-        if (Objects.isNull(createUserRequest.getCountry()) ||
-                createUserRequest.getCountry().isBlank()) {
+        if (Objects.isNull(createUserRequest.getCountry()) || createUserRequest.getCountry().isBlank())
             throw new Exception("El campo country no puede estar nulo ni vacío");
-        }
-
-        // Validar campo address
-        if (Objects.isNull(createUserRequest.getAddress()) ||
-                createUserRequest.getAddress().isBlank()) {
+        if (Objects.isNull(createUserRequest.getAddress()) || createUserRequest.getAddress().isBlank())
             throw new Exception("El campo address no puede estar nulo ni vacío");
-        }
-
-        // Validar que existe el document type
         DocumentType documentType = documentTypeRepository.findById(createUserRequest.getDocumentTypeId())
                 .orElseThrow(() -> new Exception("El tipo de documento no existe"));
-
-        // Validar que no exista un usuario creado con el mismo email
-        if (userRepository.existsByEmail(createUserRequest.getEmail())) {
+        if (userRepository.existsByEmail(createUserRequest.getEmail()))
             throw new Exception("Ya existe un usuario con el email ingresado");
-        }
-
-        // Validar que no exista un usuario creado con el mismo documento y tipo de documento
-        if (userRepository.existsByDocumentNumberAndDocumentTypeId(
-                createUserRequest.getDocumentNumber(), createUserRequest.getDocumentTypeId())) {
+        if (userRepository.existsByDocumentNumberAndDocumentTypeId(createUserRequest.getDocumentNumber(), createUserRequest.getDocumentTypeId()))
             throw new Exception("Ya existe un usuario con el documento y tipo de documento ingresados");
-        }
-
         User user = UserMapper.createUserRequestToUser(createUserRequest, documentType);
         userRepository.save(user);
-        UserResponse userResponse = UserMapper.modelToUserResponse(user);
-        return userResponse;
+        return UserMapper.modelToUserResponse(user);
+    }
 
-
+    @Override
+    public UserResponse updateUser(Integer id, UpdateUserRequest req) throws Exception {
+        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new Exception(String.format("Usuario no encontrado con el id: %d", id)));
+        if (req.getFullName() != null && !req.getFullName().isBlank()) user.setFullName(req.getFullName());
+        if (req.getPhone() != null && !req.getPhone().isBlank()) user.setPhone(req.getPhone());
+        if (req.getEmail() != null && !req.getEmail().isBlank()) {
+            if (!req.getEmail().equals(user.getEmail()) && userRepository.existsByEmail(req.getEmail()))
+                throw new Exception("Ya existe un usuario con el email ingresado");
+            user.setEmail(req.getEmail());
+        }
+        if (req.getDocumentTypeId() != null && req.getDocumentTypeId() > 0) {
+            DocumentType documentType = documentTypeRepository.findById(req.getDocumentTypeId())
+                    .orElseThrow(() -> new Exception("El tipo de documento no existe"));
+            user.setDocumentType(documentType);
+        }
+        if (req.getDocumentNumber() != null && !req.getDocumentNumber().isBlank()) user.setDocumentNumber(req.getDocumentNumber());
+        if (req.getBirthDate() != null && !req.getBirthDate().isBlank())
+            user.setBirthDate(LocalDate.parse(req.getBirthDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        if (req.getCountry() != null && !req.getCountry().isBlank()) user.setCountry(req.getCountry());
+        if (req.getAddress() != null && !req.getAddress().isBlank()) user.setAddress(req.getAddress());
+        userRepository.save(user);
+        return UserMapper.modelToUserResponse(user);
     }
 }
