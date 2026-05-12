@@ -37,7 +37,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryResponse createCategory(CreateCategoryRequest req) throws Exception {
         if (Objects.isNull(req.getName()) || req.getName().isBlank())
-            throw new Exception("El campo name no puede ser nulo ni vacío");
+              throw new Exception("El campo name no puede ser nulo ni vacío");
         Category category = CategoryMapper.createCategoryRequestToCategory(req);
         categoryRepository.save(category);
         return CategoryMapper.modelToCategoryResponse(category);

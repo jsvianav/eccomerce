@@ -48,16 +48,22 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
 
     @Override
     public InventoryMovementResponse createInventoryMovement(CreateInventoryMovementRequest req) throws Exception {
+        // Pedirle copia a Sebastian Baquero del comentario que le puse aquí
+
         if (Objects.isNull(req.getProductId()) || req.getProductId() <= 0)
             throw new Exception("El campo productId debe contener un valor mayor a 0");
         if (Objects.isNull(req.getType()) || req.getType().isBlank())
             throw new Exception("El campo type no puede estar nulo ni vacío");
+
+        // Averiguar esta chimbada para que sirve
         MovementType movementType;
         try {
             movementType = MovementType.valueOf(req.getType().toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new Exception("El type debe ser DEBIT, CREDIT, RESERVE o RELEASE");
         }
+        // Aqui termina lo que debemos saber para que sirve este codigo generado por IA :D
+
         if (Objects.isNull(req.getQty()) || req.getQty() <= 0)
             throw new Exception("El campo qty debe ser mayor a 0");
         Product product = productRepository.findById(req.getProductId())
@@ -81,13 +87,18 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
         if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
         InventoryMovement movement = inventoryMovementRepository.findById(id)
                 .orElseThrow(() -> new Exception(String.format("Movimiento de inventario no encontrado con el id: %d", id)));
+
+        // Pedirle copia a Sebastian Baquero del otro comentario que le puse aquí
+
         if (req.getQuantity() != null && req.getQuantity() > 0) movement.setQty(req.getQuantity());
         if (req.getMovementType() != null && !req.getMovementType().isBlank()) {
+            // Mismo comentario, esta vaina para que sirve
             try {
                 movement.setType(MovementType.valueOf(req.getMovementType().toUpperCase()));
             } catch (IllegalArgumentException e) {
                 throw new Exception("El type debe ser DEBIT, CREDIT, RESERVE o RELEASE");
             }
+            // Mismo comentario, esta vaina para que sirve
         }
         return InventoryMovementMapper.modelToInventoryMovementResponse(inventoryMovementRepository.save(movement));
     }
