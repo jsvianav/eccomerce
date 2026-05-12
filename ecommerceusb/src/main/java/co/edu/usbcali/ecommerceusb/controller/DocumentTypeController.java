@@ -3,7 +3,6 @@ package co.edu.usbcali.ecommerceusb.controller;
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateDocumentTypeRequest;
 import co.edu.usbcali.ecommerceusb.service.DocumentTypeService;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +16,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/documentType")
-@Tag(name = "DocumentType", description = "Operaciones para la gestión de tipos de documento")
 public class DocumentTypeController {
 
     // Inyección del servicio que contiene la lógica de negocio de tipos de documento

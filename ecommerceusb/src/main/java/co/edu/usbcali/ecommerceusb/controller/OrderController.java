@@ -4,7 +4,6 @@ import co.edu.usbcali.ecommerceusb.dto.CreateOrderRequest;
 import co.edu.usbcali.ecommerceusb.dto.OrderResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateOrderRequest;
 import co.edu.usbcali.ecommerceusb.service.OrderService;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +16,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/order")
-@Tag(name = "Order", description = "Operaciones para la gestión de órdenes de compra")
 public class OrderController {
 
     // Inyección del servicio que contiene la lógica de negocio de órdenes

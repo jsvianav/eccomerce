@@ -4,7 +4,6 @@ import co.edu.usbcali.ecommerceusb.dto.CreateInventoryMovementRequest;
 import co.edu.usbcali.ecommerceusb.dto.InventoryMovementResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateInventoryMovementRequest;
 import co.edu.usbcali.ecommerceusb.service.InventoryMovementService;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +17,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/inventoryMovement")
-@Tag(name = "InventoryMovement", description = "Operaciones para registrar movimientos de inventario (DEBIT, CREDIT, RESERVE, RELEASE)")
 public class InventoryMovementController {
 
     // Inyección del servicio que contiene la lógica de negocio de movimientos de inventario

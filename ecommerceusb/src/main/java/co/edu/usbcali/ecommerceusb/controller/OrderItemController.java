@@ -4,7 +4,6 @@ import co.edu.usbcali.ecommerceusb.dto.CreateOrderItemRequest;
 import co.edu.usbcali.ecommerceusb.dto.OrderItemResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateOrderItemRequest;
 import co.edu.usbcali.ecommerceusb.service.OrderItemService;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +16,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/orderItem")
-@Tag(name = "OrderItem", description = "Operaciones para la gestión de productos dentro de una orden")
 public class OrderItemController {
 
     // Inyección del servicio que contiene la lógica de negocio de items de orden
@@ -52,7 +50,7 @@ public class OrderItemController {
     /**
      * Agrega un nuevo producto a una orden existente.
      * El lineTotal se calcula automáticamente (unitPriceSnapshot x quantity).
-     * Retorna 200 OK con el item creado, o 400 si los datos son inválidos o el producto ya estaba en la orden.
+     * Retorna 200 OK con el item creado, o 400 si los datos son inválidos.
      */
     @PostMapping
     public ResponseEntity<?> createOrderItem(@RequestBody CreateOrderItemRequest createOrderItemRequest) {

@@ -4,7 +4,6 @@ import co.edu.usbcali.ecommerceusb.dto.CreateInventoryRequest;
 import co.edu.usbcali.ecommerceusb.dto.InventoryResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateInventoryRequest;
 import co.edu.usbcali.ecommerceusb.service.InventoryService;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +17,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/inventory")
-@Tag(name = "Inventory", description = "Operaciones para la gestión del inventario de productos")
 public class InventoryController {
 
     // Inyección del servicio que contiene la lógica de negocio de inventarios

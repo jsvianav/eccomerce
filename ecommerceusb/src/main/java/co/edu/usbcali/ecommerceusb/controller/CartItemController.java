@@ -4,7 +4,6 @@ import co.edu.usbcali.ecommerceusb.dto.CartItemResponse;
 import co.edu.usbcali.ecommerceusb.dto.CreateCartItemRequest;
 import co.edu.usbcali.ecommerceusb.dto.UpdateCartItemRequest;
 import co.edu.usbcali.ecommerceusb.service.CartItemService;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +16,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/cartItem")
-@Tag(name = "CartItem", description = "Operaciones para la gestión de productos dentro de un carrito")
 public class CartItemController {
 
     // Inyección del servicio que contiene la lógica de negocio de items de carrito
