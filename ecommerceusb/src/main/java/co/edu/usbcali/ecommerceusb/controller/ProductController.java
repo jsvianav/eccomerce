@@ -4,9 +4,6 @@ import co.edu.usbcali.ecommerceusb.dto.CreateProductRequest;
 import co.edu.usbcali.ecommerceusb.dto.ProductResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateProductRequest;
 import co.edu.usbcali.ecommerceusb.service.ProductService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,61 +26,55 @@ public class ProductController {
 
     /**
      * Retorna la lista completa de productos registrados.
+     * No requiere parámetros. Siempre retorna 200 OK.
      */
-    @Operation(summary = "Listar todos los productos", description = "Retorna todos los productos disponibles en el catálogo")
-    @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente")
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getProducts() {
+        // Delega al servicio y envuelve el resultado en un 200 OK
         return ResponseEntity.ok(productService.getProducts());
     }
 
     /**
      * Busca un producto por su ID.
+     * Retorna 200 OK si existe, o 400 Bad Request si el ID es inválido o no se encuentra.
      */
-    @Operation(summary = "Buscar producto por ID", description = "Retorna un producto específico según su identificador")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Producto encontrado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o producto no encontrado")
-    })
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Integer id) {
         try {
+            // Intenta buscar el producto; retorna 200 si existe
             return ResponseEntity.ok(productService.getProductById(id));
         } catch (Exception e) {
+            // Si el servicio lanza una excepción, retorna 400 con el mensaje de error
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     /**
      * Crea un nuevo producto en el catálogo.
+     * Retorna 200 OK con el producto creado, o 400 si los datos son inválidos.
      */
-    @Operation(summary = "Crear un producto", description = "Registra un nuevo producto en el catálogo del ecommerce")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Producto creado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos inválidos en el request")
-    })
     @PostMapping
     public ResponseEntity<?> createProduct(@RequestBody CreateProductRequest createProductRequest) {
         try {
+            // Pasa el request al servicio para que lo valide y persista
             return ResponseEntity.ok(productService.createProduct(createProductRequest));
         } catch (Exception e) {
+            // Retorna 400 con el mensaje de validación si algo falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     /**
      * Actualiza los datos de un producto existente.
+     * Solo modifica los campos enviados en el body (name, description, price, available).
      */
-    @Operation(summary = "Actualizar un producto", description = "Modifica los campos de un producto existente en el catálogo")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Producto actualizado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o datos incorrectos")
-    })
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable Integer id, @RequestBody UpdateProductRequest updateProductRequest) {
         try {
+            // Pasa el id y el request al servicio para que actualice solo los campos recibidos
             return ResponseEntity.ok(productService.updateProduct(id, updateProductRequest));
         } catch (Exception e) {
+            // Retorna 400 con el mensaje de error si la operación falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

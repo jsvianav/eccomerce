@@ -4,9 +4,6 @@ import co.edu.usbcali.ecommerceusb.dto.CartItemResponse;
 import co.edu.usbcali.ecommerceusb.dto.CreateCartItemRequest;
 import co.edu.usbcali.ecommerceusb.dto.UpdateCartItemRequest;
 import co.edu.usbcali.ecommerceusb.service.CartItemService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,61 +26,56 @@ public class CartItemController {
 
     /**
      * Retorna la lista completa de items de carrito registrados.
+     * No requiere parámetros. Siempre retorna 200 OK.
      */
-    @Operation(summary = "Listar todos los items de carrito", description = "Retorna todos los productos agregados en carritos de compra")
-    @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente")
     @GetMapping
     public ResponseEntity<List<CartItemResponse>> getCartItems() {
+        // Delega al servicio y envuelve el resultado en un 200 OK
         return ResponseEntity.ok(cartItemService.getCartItems());
     }
 
     /**
      * Busca un item de carrito por su ID.
+     * Retorna 200 OK si existe, o 400 Bad Request si el ID es inválido o no se encuentra.
      */
-    @Operation(summary = "Buscar item de carrito por ID", description = "Retorna un item específico según su identificador")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Item encontrado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o item no encontrado")
-    })
     @GetMapping("/{id}")
     public ResponseEntity<?> getCartItemById(@PathVariable Integer id) {
         try {
+            // Intenta buscar el item; retorna 200 si existe
             return ResponseEntity.ok(cartItemService.getCartItemById(id));
         } catch (Exception e) {
+            // Si el servicio lanza una excepción, retorna 400 con el mensaje de error
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     /**
      * Agrega un nuevo producto a un carrito existente.
+     * Retorna 200 OK con el item creado, o 400 si los datos son inválidos
+     * o el producto ya estaba en ese carrito.
      */
-    @Operation(summary = "Agregar item al carrito", description = "Agrega un producto a un carrito de compra existente")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Item agregado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos inválidos o producto ya existe en el carrito")
-    })
     @PostMapping
     public ResponseEntity<?> createCartItem(@RequestBody CreateCartItemRequest createCartItemRequest) {
         try {
+            // Pasa el request al servicio para que lo valide y persista
             return ResponseEntity.ok(cartItemService.createCartItem(createCartItemRequest));
         } catch (Exception e) {
+            // Retorna 400 con el mensaje de validación si algo falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     /**
      * Actualiza la cantidad o el producto de un item de carrito existente.
+     * Solo modifica los campos enviados en el body.
      */
-    @Operation(summary = "Actualizar item de carrito", description = "Modifica la cantidad o el producto de un item dentro de un carrito")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Item actualizado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o datos incorrectos")
-    })
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCartItem(@PathVariable Integer id, @RequestBody UpdateCartItemRequest updateCartItemRequest) {
         try {
+            // Pasa el id y el request al servicio para que actualice solo los campos recibidos
             return ResponseEntity.ok(cartItemService.updateCartItem(id, updateCartItemRequest));
         } catch (Exception e) {
+            // Retorna 400 con el mensaje de error si la operación falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

@@ -4,9 +4,6 @@ import co.edu.usbcali.ecommerceusb.dto.CreateInventoryRequest;
 import co.edu.usbcali.ecommerceusb.dto.InventoryResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateInventoryRequest;
 import co.edu.usbcali.ecommerceusb.service.InventoryService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,62 +27,56 @@ public class InventoryController {
 
     /**
      * Retorna la lista completa de registros de inventario.
+     * No requiere parámetros. Siempre retorna 200 OK.
      */
-    @Operation(summary = "Listar todos los inventarios", description = "Retorna el stock actual de todos los productos")
-    @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente")
     @GetMapping
     public ResponseEntity<List<InventoryResponse>> getInventories() {
+        // Delega al servicio y envuelve el resultado en un 200 OK
         return ResponseEntity.ok(inventoryService.getInventories());
     }
 
     /**
      * Busca un registro de inventario por su ID.
+     * Retorna 200 OK si existe, o 400 Bad Request si el ID es inválido o no se encuentra.
      */
-    @Operation(summary = "Buscar inventario por ID", description = "Retorna el stock de un producto según el ID del registro de inventario")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Inventario encontrado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o inventario no encontrado")
-    })
     @GetMapping("/{id}")
     public ResponseEntity<?> getInventoryById(@PathVariable Integer id) {
         try {
+            // Intenta buscar el inventario; retorna 200 si existe
             return ResponseEntity.ok(inventoryService.getInventoryById(id));
         } catch (Exception e) {
+            // Si el servicio lanza una excepción, retorna 400 con el mensaje de error
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     /**
      * Crea un nuevo registro de inventario para un producto.
-     * Solo se permite un inventario por producto (relación única).
+     * Solo se permite un inventario por producto (relación única 1 a 1).
+     * Retorna 200 OK con el inventario creado, o 400 si el producto ya tiene uno.
      */
-    @Operation(summary = "Crear inventario", description = "Registra el stock inicial de un producto; cada producto solo puede tener un inventario")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Inventario creado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos inválidos o el producto ya tiene inventario")
-    })
     @PostMapping
     public ResponseEntity<?> createInventory(@RequestBody CreateInventoryRequest createInventoryRequest) {
         try {
+            // Pasa el request al servicio para que valide la unicidad y persista
             return ResponseEntity.ok(inventoryService.createInventory(createInventoryRequest));
         } catch (Exception e) {
+            // Retorna 400 con el mensaje de validación si algo falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     /**
      * Actualiza el stock de un inventario existente.
+     * Solo modifica el campo enviado en el body.
      */
-    @Operation(summary = "Actualizar inventario", description = "Modifica la cantidad en stock de un inventario existente")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Inventario actualizado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o datos incorrectos")
-    })
     @PutMapping("/{id}")
     public ResponseEntity<?> updateInventory(@PathVariable Integer id, @RequestBody UpdateInventoryRequest updateInventoryRequest) {
         try {
+            // Pasa el id y el request al servicio para que actualice el stock
             return ResponseEntity.ok(inventoryService.updateInventory(id, updateInventoryRequest));
         } catch (Exception e) {
+            // Retorna 400 con el mensaje de error si la operación falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

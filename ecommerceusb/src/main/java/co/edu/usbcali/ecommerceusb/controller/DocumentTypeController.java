@@ -3,9 +3,6 @@ package co.edu.usbcali.ecommerceusb.controller;
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateDocumentTypeRequest;
 import co.edu.usbcali.ecommerceusb.service.DocumentTypeService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,44 +26,40 @@ public class DocumentTypeController {
 
     /**
      * Retorna la lista completa de tipos de documento disponibles.
+     * No requiere parámetros. Siempre retorna 200 OK.
      */
-    @Operation(summary = "Listar todos los tipos de documento", description = "Retorna todos los tipos de documento registrados en el sistema")
-    @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente")
     @GetMapping
     public ResponseEntity<List<DocumentTypeResponse>> getDocumentTypes() {
+        // Delega al servicio y envuelve el resultado en un 200 OK
         return ResponseEntity.ok(documentTypeService.getDocumentTypes());
     }
 
     /**
      * Busca un tipo de documento por su ID.
+     * Retorna 200 OK si existe, o 400 Bad Request si el ID es inválido o no se encuentra.
      */
-    @Operation(summary = "Buscar tipo de documento por ID", description = "Retorna un tipo de documento específico según su identificador")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Tipo de documento encontrado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o tipo de documento no encontrado")
-    })
     @GetMapping("/{id}")
     public ResponseEntity<?> getDocumentTypeById(@PathVariable Integer id) {
         try {
+            // Intenta buscar el tipo de documento; retorna 200 si existe
             return ResponseEntity.ok(documentTypeService.getDocumentTypeById(id));
         } catch (Exception e) {
+            // Si el servicio lanza una excepción, retorna 400 con el mensaje de error
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     /**
      * Actualiza el nombre y/o código de un tipo de documento existente.
+     * Solo modifica los campos enviados en el body.
      */
-    @Operation(summary = "Actualizar tipo de documento", description = "Modifica el nombre o código de un tipo de documento existente")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Tipo de documento actualizado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o datos incorrectos")
-    })
     @PutMapping("/{id}")
     public ResponseEntity<?> updateDocumentType(@PathVariable Integer id, @RequestBody UpdateDocumentTypeRequest updateDocumentTypeRequest) {
         try {
+            // Pasa el id y el request al servicio para que actualice solo los campos recibidos
             return ResponseEntity.ok(documentTypeService.updateDocumentType(id, updateDocumentTypeRequest));
         } catch (Exception e) {
+            // Retorna 400 con el mensaje de error si la operación falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

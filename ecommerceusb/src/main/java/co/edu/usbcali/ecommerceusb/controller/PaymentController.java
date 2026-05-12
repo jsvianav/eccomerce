@@ -4,9 +4,6 @@ import co.edu.usbcali.ecommerceusb.dto.CreatePaymentRequest;
 import co.edu.usbcali.ecommerceusb.dto.PaymentResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdatePaymentRequest;
 import co.edu.usbcali.ecommerceusb.service.PaymentService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,62 +26,56 @@ public class PaymentController {
 
     /**
      * Retorna la lista completa de pagos registrados.
+     * No requiere parámetros. Siempre retorna 200 OK.
      */
-    @Operation(summary = "Listar todos los pagos", description = "Retorna todos los pagos registrados en el sistema")
-    @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente")
     @GetMapping
     public ResponseEntity<List<PaymentResponse>> getPayments() {
+        // Delega al servicio y envuelve el resultado en un 200 OK
         return ResponseEntity.ok(paymentService.getPayments());
     }
 
     /**
      * Busca un pago por su ID.
+     * Retorna 200 OK si existe, o 400 Bad Request si el ID es inválido o no se encuentra.
      */
-    @Operation(summary = "Buscar pago por ID", description = "Retorna un pago específico según su identificador")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Pago encontrado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o pago no encontrado")
-    })
     @GetMapping("/{id}")
     public ResponseEntity<?> getPaymentById(@PathVariable Integer id) {
         try {
+            // Intenta buscar el pago; retorna 200 si existe
             return ResponseEntity.ok(paymentService.getPaymentById(id));
         } catch (Exception e) {
+            // Si el servicio lanza una excepción, retorna 400 con el mensaje de error
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     /**
      * Registra un nuevo pago asociado a una orden.
-     * Usa idempotencyKey para evitar pagos duplicados.
+     * Usa idempotencyKey para evitar que el mismo pago se procese más de una vez.
+     * Retorna 200 OK con el pago creado, o 400 si los datos son inválidos o hay duplicado.
      */
-    @Operation(summary = "Registrar un pago", description = "Crea un nuevo pago asociado a una orden; usa idempotencyKey para prevenir duplicados")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Pago registrado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos inválidos o pago duplicado")
-    })
     @PostMapping
     public ResponseEntity<?> createPayment(@RequestBody CreatePaymentRequest createPaymentRequest) {
         try {
+            // Pasa el request al servicio para que valide la idempotencyKey y persista el pago
             return ResponseEntity.ok(paymentService.createPayment(createPaymentRequest));
         } catch (Exception e) {
+            // Retorna 400 con el mensaje de validación si algo falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     /**
-     * Actualiza el estado o referencia de un pago existente.
+     * Actualiza el estado o referencia del proveedor de un pago existente.
+     * Solo modifica los campos enviados en el body.
      */
-    @Operation(summary = "Actualizar un pago", description = "Modifica el estado o la referencia del proveedor de un pago existente")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Pago actualizado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o datos incorrectos")
-    })
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePayment(@PathVariable Integer id, @RequestBody UpdatePaymentRequest updatePaymentRequest) {
         try {
+            // Pasa el id y el request al servicio para que actualice solo los campos recibidos
             return ResponseEntity.ok(paymentService.updatePayment(id, updatePaymentRequest));
         } catch (Exception e) {
+            // Retorna 400 con el mensaje de error si la operación falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

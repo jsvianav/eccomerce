@@ -4,9 +4,6 @@ import co.edu.usbcali.ecommerceusb.dto.CreateInventoryMovementRequest;
 import co.edu.usbcali.ecommerceusb.dto.InventoryMovementResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateInventoryMovementRequest;
 import co.edu.usbcali.ecommerceusb.service.InventoryMovementService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,27 +27,25 @@ public class InventoryMovementController {
 
     /**
      * Retorna la lista completa de movimientos de inventario registrados.
+     * No requiere parámetros. Siempre retorna 200 OK.
      */
-    @Operation(summary = "Listar todos los movimientos", description = "Retorna el historial completo de movimientos de inventario")
-    @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente")
     @GetMapping
     public ResponseEntity<List<InventoryMovementResponse>> getInventoryMovements() {
+        // Delega al servicio y envuelve el resultado en un 200 OK
         return ResponseEntity.ok(inventoryMovementService.getInventoryMovements());
     }
 
     /**
      * Busca un movimiento de inventario por su ID.
+     * Retorna 200 OK si existe, o 400 Bad Request si el ID es inválido o no se encuentra.
      */
-    @Operation(summary = "Buscar movimiento por ID", description = "Retorna un movimiento de inventario específico según su identificador")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Movimiento encontrado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o movimiento no encontrado")
-    })
     @GetMapping("/{id}")
     public ResponseEntity<?> getInventoryMovementById(@PathVariable Integer id) {
         try {
+            // Intenta buscar el movimiento; retorna 200 si existe
             return ResponseEntity.ok(inventoryMovementService.getInventoryMovementById(id));
         } catch (Exception e) {
+            // Si el servicio lanza una excepción, retorna 400 con el mensaje de error
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -58,34 +53,30 @@ public class InventoryMovementController {
     /**
      * Registra un nuevo movimiento de inventario.
      * El tipo puede ser DEBIT (salida), CREDIT (entrada), RESERVE (reserva) o RELEASE (liberación).
+     * El orderId es opcional; solo se asocia a una orden si viene en el request.
      */
-    @Operation(summary = "Registrar movimiento de inventario", description = "Crea un nuevo movimiento: DEBIT (salida), CREDIT (entrada), RESERVE (reserva) o RELEASE (liberación)")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Movimiento registrado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos inválidos o tipo de movimiento no permitido")
-    })
     @PostMapping
     public ResponseEntity<?> createInventoryMovement(@RequestBody CreateInventoryMovementRequest createInventoryMovementRequest) {
         try {
+            // Pasa el request al servicio para que valide el tipo y persista el movimiento
             return ResponseEntity.ok(inventoryMovementService.createInventoryMovement(createInventoryMovementRequest));
         } catch (Exception e) {
+            // Retorna 400 con el mensaje de validación si algo falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     /**
      * Actualiza la cantidad o el tipo de un movimiento de inventario existente.
+     * Solo modifica los campos enviados en el body.
      */
-    @Operation(summary = "Actualizar movimiento de inventario", description = "Modifica la cantidad o tipo de un movimiento de inventario existente")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Movimiento actualizado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o datos incorrectos")
-    })
     @PutMapping("/{id}")
     public ResponseEntity<?> updateInventoryMovement(@PathVariable Integer id, @RequestBody UpdateInventoryMovementRequest updateInventoryMovementRequest) {
         try {
+            // Pasa el id y el request al servicio para que actualice solo los campos recibidos
             return ResponseEntity.ok(inventoryMovementService.updateInventoryMovement(id, updateInventoryMovementRequest));
         } catch (Exception e) {
+            // Retorna 400 con el mensaje de error si la operación falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

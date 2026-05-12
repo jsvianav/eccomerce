@@ -4,9 +4,6 @@ import co.edu.usbcali.ecommerceusb.dto.CategoryResponse;
 import co.edu.usbcali.ecommerceusb.dto.CreateCategoryRequest;
 import co.edu.usbcali.ecommerceusb.dto.UpdateCategoryRequest;
 import co.edu.usbcali.ecommerceusb.service.CategoryService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,61 +26,55 @@ public class CategoryController {
 
     /**
      * Retorna la lista completa de categorías registradas.
+     * No requiere parámetros. Siempre retorna 200 OK.
      */
-    @Operation(summary = "Listar todas las categorías", description = "Retorna todas las categorías de productos disponibles")
-    @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente")
     @GetMapping
     public ResponseEntity<List<CategoryResponse>> getCategories() {
+        // Delega al servicio y envuelve el resultado en un 200 OK
         return ResponseEntity.ok(categoryService.getCategories());
     }
 
     /**
      * Busca una categoría por su ID.
+     * Retorna 200 OK si existe, o 400 Bad Request si el ID es inválido o no se encuentra.
      */
-    @Operation(summary = "Buscar categoría por ID", description = "Retorna una categoría específica según su identificador")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Categoría encontrada exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o categoría no encontrada")
-    })
     @GetMapping("/{id}")
     public ResponseEntity<?> getCategoryById(@PathVariable Integer id) {
         try {
+            // Intenta buscar la categoría; retorna 200 si existe
             return ResponseEntity.ok(categoryService.getCategoryById(id));
         } catch (Exception e) {
+            // Si el servicio lanza una excepción, retorna 400 con el mensaje de error
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     /**
      * Crea una nueva categoría.
+     * Retorna 200 OK con la categoría creada, o 400 si el nombre está vacío.
      */
-    @Operation(summary = "Crear una categoría", description = "Registra una nueva categoría de productos en el sistema")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Categoría creada exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos inválidos en el request")
-    })
     @PostMapping
     public ResponseEntity<?> createCategory(@RequestBody CreateCategoryRequest createCategoryRequest) {
         try {
+            // Pasa el request al servicio para que lo valide y persista
             return ResponseEntity.ok(categoryService.createCategory(createCategoryRequest));
         } catch (Exception e) {
+            // Retorna 400 con el mensaje de validación si algo falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     /**
-     * Actualiza una categoría existente.
+     * Actualiza el nombre de una categoría existente.
+     * Solo modifica el campo enviado en el body.
      */
-    @Operation(summary = "Actualizar una categoría", description = "Modifica el nombre de una categoría existente")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Categoría actualizada exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o datos incorrectos")
-    })
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCategory(@PathVariable Integer id, @RequestBody UpdateCategoryRequest updateCategoryRequest) {
         try {
+            // Pasa el id y el request al servicio para que actualice solo los campos recibidos
             return ResponseEntity.ok(categoryService.updateCategory(id, updateCategoryRequest));
         } catch (Exception e) {
+            // Retorna 400 con el mensaje de error si la operación falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

@@ -4,9 +4,6 @@ import co.edu.usbcali.ecommerceusb.dto.CreateUserRequest;
 import co.edu.usbcali.ecommerceusb.dto.UpdateUserRequest;
 import co.edu.usbcali.ecommerceusb.dto.UserResponse;
 import co.edu.usbcali.ecommerceusb.service.UserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,22 +26,18 @@ public class UserController {
 
     /**
      * Retorna la lista completa de usuarios registrados.
+     * No requiere parámetros. Siempre retorna 200 OK.
      */
-    @Operation(summary = "Listar todos los usuarios", description = "Retorna todos los usuarios registrados en el sistema")
-    @ApiResponse(responseCode = "200", description = "Lista obtenida exitosamente")
     @GetMapping
     public ResponseEntity<List<UserResponse>> getUsers() {
+        // Delega al servicio y envuelve el resultado en un 200 OK
         return ResponseEntity.ok(userService.getUsers());
     }
 
     /**
      * Busca un usuario por su ID.
+     * Retorna 200 OK si existe, o 400 Bad Request si el ID es inválido o no se encuentra.
      */
-    @Operation(summary = "Buscar usuario por ID", description = "Retorna un usuario específico según su identificador")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Usuario encontrado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o usuario no encontrado")
-    })
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Integer id) {
         try {
@@ -58,13 +51,9 @@ public class UserController {
 
     /**
      * Crea un nuevo usuario en el sistema.
-     * Valida unicidad de email y de número de documento.
+     * Valida unicidad de email y de número de documento antes de persistir.
+     * Retorna 200 OK con el usuario creado, o 400 si los datos son inválidos o hay duplicados.
      */
-    @Operation(summary = "Crear un usuario", description = "Registra un nuevo usuario; valida que el email y documento no estén duplicados")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Usuario creado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos inválidos o usuario duplicado")
-    })
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody CreateUserRequest createUserRequest) {
         try {
@@ -78,13 +67,8 @@ public class UserController {
 
     /**
      * Actualiza los datos de un usuario existente.
-     * Solo modifica los campos enviados en el body.
+     * Solo modifica los campos enviados en el body; valida unicidad de email si este cambia.
      */
-    @Operation(summary = "Actualizar un usuario", description = "Modifica los datos personales de un usuario existente")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "ID inválido o datos incorrectos")
-    })
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody UpdateUserRequest updateUserRequest) {
         try {
