@@ -1,6 +1,7 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateUserRequest;
+import co.edu.usbcali.ecommerceusb.dto.DeleteUserResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateUserRequest;
 import co.edu.usbcali.ecommerceusb.dto.UserResponse;
 import co.edu.usbcali.ecommerceusb.mapper.UserMapper;
@@ -161,5 +162,21 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         // Retorna la respuesta mapeada del usuario actualizado
         return UserMapper.modelToUserResponse(user);
+    }
+    /**
+     * Elimina un User existente por su ID.
+     * Lanza excepción si el ID es inválido o si el User no existe.
+     */
+    @Override
+    public DeleteUserResponse deleteUser(Integer id) throws Exception {
+        // Valida que el id no sea nulo y sea mayor a 0
+        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
+        // Busca el User; lanza excepción si no se encuentra
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new Exception(String.format("User no encontrado con el id: %d", id)));
+        // Elimina el registro de la base de datos
+        userRepository.delete(user);
+        // Retorna la respuesta con mensaje de confirmación
+        return new DeleteUserResponse("User con id " + id + " eliminado correctamente");
     }
 }

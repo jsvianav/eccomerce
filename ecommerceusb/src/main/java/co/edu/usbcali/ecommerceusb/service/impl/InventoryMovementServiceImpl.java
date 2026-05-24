@@ -1,6 +1,7 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateInventoryMovementRequest;
+import co.edu.usbcali.ecommerceusb.dto.DeleteInventoryMovementResponse;
 import co.edu.usbcali.ecommerceusb.dto.InventoryMovementResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateInventoryMovementRequest;
 import co.edu.usbcali.ecommerceusb.mapper.InventoryMovementMapper;
@@ -132,5 +133,21 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
         }
         // Guarda los cambios en la base de datos y retorna la respuesta mapeada
         return InventoryMovementMapper.modelToInventoryMovementResponse(inventoryMovementRepository.save(movement));
+    }
+    /**
+     * Elimina un InventoryMovement existente por su ID.
+     * Lanza excepción si el ID es inválido o si el InventoryMovement no existe.
+     */
+    @Override
+    public DeleteInventoryMovementResponse deleteInventoryMovement(Integer id) throws Exception {
+        // Valida que el id no sea nulo y sea mayor a 0
+        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
+        // Busca el InventoryMovement; lanza excepción si no se encuentra
+        InventoryMovement inventoryMovement = inventoryMovementRepository.findById(id)
+                .orElseThrow(() -> new Exception(String.format("InventoryMovement no encontrado con el id: %d", id)));
+        // Elimina el registro de la base de datos
+        inventoryMovementRepository.delete(inventoryMovement);
+        // Retorna la respuesta con mensaje de confirmación
+        return new DeleteInventoryMovementResponse("InventoryMovement con id " + id + " eliminado correctamente");
     }
 }

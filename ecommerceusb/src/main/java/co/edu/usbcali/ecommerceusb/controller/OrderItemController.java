@@ -1,10 +1,12 @@
 package co.edu.usbcali.ecommerceusb.controller;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateOrderItemRequest;
+import co.edu.usbcali.ecommerceusb.dto.DeleteOrderItemResponse;
 import co.edu.usbcali.ecommerceusb.dto.OrderItemResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateOrderItemRequest;
 import co.edu.usbcali.ecommerceusb.service.OrderItemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -76,5 +78,11 @@ public class OrderItemController {
             // Retorna 400 con el mensaje de error si la operación falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<DeleteOrderItemResponse> deleteOrderItem(
+            @PathVariable Integer id) throws Exception {
+        return new ResponseEntity<>(orderItemService.deleteOrderItem(id), HttpStatus.OK);
     }
 }

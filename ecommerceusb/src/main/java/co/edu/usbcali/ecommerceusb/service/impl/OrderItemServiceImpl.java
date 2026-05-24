@@ -1,6 +1,7 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateOrderItemRequest;
+import co.edu.usbcali.ecommerceusb.dto.DeleteOrderItemResponse;
 import co.edu.usbcali.ecommerceusb.dto.OrderItemResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateOrderItemRequest;
 import co.edu.usbcali.ecommerceusb.mapper.OrderItemMapper;
@@ -128,5 +129,21 @@ public class OrderItemServiceImpl implements OrderItemService {
             orderItem.setLineTotal(orderItem.getUnitPriceSnapshot().multiply(BigDecimal.valueOf(orderItem.getQuantity())));
         // Guarda los cambios y retorna la respuesta mapeada
         return OrderItemMapper.modelToOrderItemResponse(orderItemRepository.save(orderItem));
+    }
+    /**
+     * Elimina un OrderItem existente por su ID.
+     * Lanza excepción si el ID es inválido o si el OrderItem no existe.
+     */
+    @Override
+    public DeleteOrderItemResponse deleteOrderItem(Integer id) throws Exception {
+        // Valida que el id no sea nulo y sea mayor a 0
+        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
+        // Busca el OrderItem; lanza excepción si no se encuentra
+        OrderItem orderItem = orderItemRepository.findById(id)
+                .orElseThrow(() -> new Exception(String.format("OrderItem no encontrado con el id: %d", id)));
+        // Elimina el registro de la base de datos
+        orderItemRepository.delete(orderItem);
+        // Retorna la respuesta con mensaje de confirmación
+        return new DeleteOrderItemResponse("OrderItem con id " + id + " eliminado correctamente");
     }
 }

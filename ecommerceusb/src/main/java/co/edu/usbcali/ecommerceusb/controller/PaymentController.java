@@ -1,10 +1,12 @@
 package co.edu.usbcali.ecommerceusb.controller;
 
 import co.edu.usbcali.ecommerceusb.dto.CreatePaymentRequest;
+import co.edu.usbcali.ecommerceusb.dto.DeletePaymentResponse;
 import co.edu.usbcali.ecommerceusb.dto.PaymentResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdatePaymentRequest;
 import co.edu.usbcali.ecommerceusb.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -76,5 +78,11 @@ public class PaymentController {
             // Retorna 400 con el mensaje de error si la operación falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<DeletePaymentResponse> deletePayment(
+            @PathVariable Integer id) throws Exception {
+        return new ResponseEntity<>(paymentService.deletePayment(id), HttpStatus.OK);
     }
 }

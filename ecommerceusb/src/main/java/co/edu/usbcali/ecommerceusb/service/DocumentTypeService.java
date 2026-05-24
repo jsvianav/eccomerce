@@ -3,7 +3,7 @@ package co.edu.usbcali.ecommerceusb.service;
 import co.edu.usbcali.ecommerceusb.dto.CreateDocumentTypeRequest;
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateDocumentTypeRequest;
-
+import co.edu.usbcali.ecommerceusb.dto.DeleteDocumentTypeResponse;
 import java.util.List;
 
 // Interfaz de servicio para la entidad DocumentType
@@ -20,4 +20,5 @@ public interface DocumentTypeService {
 
     // Actualiza un tipo de documento existente por su ID
     DocumentTypeResponse updateDocumentType(Integer id, UpdateDocumentTypeRequest updateDocumentTypeRequest) throws Exception;
+    DeleteDocumentTypeResponse deleteDocumentType(Integer id) throws Exception;
 }

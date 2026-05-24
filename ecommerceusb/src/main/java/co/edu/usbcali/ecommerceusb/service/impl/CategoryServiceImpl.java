@@ -2,6 +2,7 @@ package co.edu.usbcali.ecommerceusb.service.impl;
 
 import co.edu.usbcali.ecommerceusb.dto.CategoryResponse;
 import co.edu.usbcali.ecommerceusb.dto.CreateCategoryRequest;
+import co.edu.usbcali.ecommerceusb.dto.DeleteCategoryResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateCategoryRequest;
 import co.edu.usbcali.ecommerceusb.mapper.CategoryMapper;
 import co.edu.usbcali.ecommerceusb.model.Category;
@@ -85,5 +86,21 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.save(category);
         // Retorna la respuesta mapeada de la categoría actualizada
         return CategoryMapper.modelToCategoryResponse(category);
+    }
+    /**
+     * Elimina una categoría existente por su ID.
+     * Lanza excepción si el ID es inválido o si la categoría no existe.
+     */
+    @Override
+    public DeleteCategoryResponse deleteCategory(Integer id) throws Exception {
+        // Valida que el id no sea nulo y sea mayor a 0
+        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
+        // Busca la categoría; lanza excepción si no se encuentra
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new Exception(String.format("Categoría no encontrada con el id: %d", id)));
+        // Elimina el registro de la base de datos
+        categoryRepository.delete(category);
+        // Retorna la respuesta con mensaje de confirmación
+        return new DeleteCategoryResponse("Categoría con id " + id + " eliminada correctamente");
     }
 }

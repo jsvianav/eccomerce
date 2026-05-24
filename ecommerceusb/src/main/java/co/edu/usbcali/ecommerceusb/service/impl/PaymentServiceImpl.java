@@ -1,6 +1,7 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
 
 import co.edu.usbcali.ecommerceusb.dto.CreatePaymentRequest;
+import co.edu.usbcali.ecommerceusb.dto.DeletePaymentResponse;
 import co.edu.usbcali.ecommerceusb.dto.PaymentResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdatePaymentRequest;
 import co.edu.usbcali.ecommerceusb.mapper.PaymentMapper;
@@ -126,5 +127,21 @@ public class PaymentServiceImpl implements PaymentService {
             payment.setProviderRef(req.getPaymentMethod());
         // Guarda los cambios en la base de datos y retorna la respuesta mapeada
         return PaymentMapper.modelToPaymentResponse(paymentRepository.save(payment));
+    }
+    /**
+     * Elimina un Payment existente por su ID.
+     * Lanza excepción si el ID es inválido o si el Payment no existe.
+     */
+    @Override
+    public DeletePaymentResponse deletePayment(Integer id) throws Exception {
+        // Valida que el id no sea nulo y sea mayor a 0
+        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
+        // Busca el Payment; lanza excepción si no se encuentra
+        Payment payment = paymentRepository.findById(id)
+                .orElseThrow(() -> new Exception(String.format("Payment no encontrado con el id: %d", id)));
+        // Elimina el registro de la base de datos
+        paymentRepository.delete(payment);
+        // Retorna la respuesta con mensaje de confirmación
+        return new DeletePaymentResponse("Payment con id " + id + " eliminado correctamente");
     }
 }

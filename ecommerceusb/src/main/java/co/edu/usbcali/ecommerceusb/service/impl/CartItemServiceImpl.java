@@ -2,6 +2,7 @@ package co.edu.usbcali.ecommerceusb.service.impl;
 
 import co.edu.usbcali.ecommerceusb.dto.CartItemResponse;
 import co.edu.usbcali.ecommerceusb.dto.CreateCartItemRequest;
+import co.edu.usbcali.ecommerceusb.dto.DeleteCartItemResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateCartItemRequest;
 import co.edu.usbcali.ecommerceusb.mapper.CartItemMapper;
 import co.edu.usbcali.ecommerceusb.model.Cart;
@@ -120,5 +121,21 @@ public class CartItemServiceImpl implements CartItemService {
         cartItem.setUpdatedAt(OffsetDateTime.now());
         // Guarda los cambios y retorna la respuesta mapeada
         return CartItemMapper.modelToCartItemResponse(cartItemRepository.save(cartItem));
+    }
+    /**
+     * Elimina un CartItem existente por su ID.
+     * Lanza excepción si el ID es inválido o si el CartItem no existe.
+     */
+    @Override
+    public DeleteCartItemResponse deleteCartItem(Integer id) throws Exception {
+        // Valida que el id no sea nulo y sea mayor a 0
+        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
+        // Busca el CartItem; lanza excepción si no se encuentra
+        CartItem cartItem = cartItemRepository.findById(id)
+                .orElseThrow(() -> new Exception(String.format("CartItem no encontrado con el id: %d", id)));
+        // Elimina el registro de la base de datos
+        cartItemRepository.delete(cartItem);
+        // Retorna la respuesta con mensaje de confirmación
+        return new DeleteCartItemResponse("CartItem con id " + id + " eliminado correctamente");
     }
 }

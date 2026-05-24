@@ -1,6 +1,7 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateOrderRequest;
+import co.edu.usbcali.ecommerceusb.dto.DeleteOrderResponse;
 import co.edu.usbcali.ecommerceusb.dto.OrderResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateOrderRequest;
 import co.edu.usbcali.ecommerceusb.mapper.OrderMapper;
@@ -126,5 +127,21 @@ public class OrderServiceImpl implements OrderService {
             order.setCurrency(req.getCurrency().trim().toUpperCase());
         // Guarda los cambios y retorna la respuesta mapeada
         return OrderMapper.modelToOrderResponse(orderRepository.save(order));
+    }
+    /**
+     * Elimina un Order existente por su ID.
+     * Lanza excepción si el ID es inválido o si el Order no existe.
+     */
+    @Override
+    public DeleteOrderResponse deleteOrder(Integer id) throws Exception {
+        // Valida que el id no sea nulo y sea mayor a 0
+        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
+        // Busca el Order; lanza excepción si no se encuentra
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new Exception(String.format("Order no encontrado con el id: %d", id)));
+        // Elimina el registro de la base de datos
+        orderRepository.delete(order);
+        // Retorna la respuesta con mensaje de confirmación
+        return new DeleteOrderResponse("Order con id " + id + " eliminado correctamente");
     }
 }

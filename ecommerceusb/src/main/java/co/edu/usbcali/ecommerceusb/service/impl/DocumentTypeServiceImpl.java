@@ -1,6 +1,7 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateDocumentTypeRequest;
+import co.edu.usbcali.ecommerceusb.dto.DeleteDocumentTypeResponse;
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateDocumentTypeRequest;
 import co.edu.usbcali.ecommerceusb.mapper.DocumentTypeMapper;
@@ -88,5 +89,21 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
         documentTypeRepository.save(documentType);
         // Retorna la respuesta mapeada del tipo de documento actualizado
         return DocumentTypeMapper.modelToDocumentTypeResponse(documentType);
+    }
+    /**
+     * Elimina un DocumentType existente por su ID.
+     * Lanza excepción si el ID es inválido o si el DocumentType no existe.
+     */
+    @Override
+    public DeleteDocumentTypeResponse deleteDocumentType(Integer id) throws Exception {
+        // Valida que el id no sea nulo y sea mayor a 0
+        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
+        // Busca el DocumentType; lanza excepción si no se encuentra
+        DocumentType documentType = documentTypeRepository.findById(id)
+                .orElseThrow(() -> new Exception(String.format("DocumentType no encontrado con el id: %d", id)));
+        // Elimina el registro de la base de datos
+        documentTypeRepository.delete(documentType);
+        // Retorna la respuesta con mensaje de confirmación
+        return new DeleteDocumentTypeResponse("DocumentType con id " + id + " eliminado correctamente");
     }
 }

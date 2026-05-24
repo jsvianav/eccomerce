@@ -1,10 +1,12 @@
 package co.edu.usbcali.ecommerceusb.controller;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateInventoryMovementRequest;
+import co.edu.usbcali.ecommerceusb.dto.DeleteInventoryMovementResponse;
 import co.edu.usbcali.ecommerceusb.dto.InventoryMovementResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateInventoryMovementRequest;
 import co.edu.usbcali.ecommerceusb.service.InventoryMovementService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -77,5 +79,11 @@ public class InventoryMovementController {
             // Retorna 400 con el mensaje de error si la operación falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<DeleteInventoryMovementResponse> deleteInventoryMovement(
+            @PathVariable Integer id) throws Exception {
+        return new ResponseEntity<>(inventoryMovementService.deleteInventoryMovement(id), HttpStatus.OK);
     }
 }

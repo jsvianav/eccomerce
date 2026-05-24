@@ -1,10 +1,12 @@
 package co.edu.usbcali.ecommerceusb.controller;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateDocumentTypeRequest;
+import co.edu.usbcali.ecommerceusb.dto.DeleteDocumentTypeResponse;
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateDocumentTypeRequest;
 import co.edu.usbcali.ecommerceusb.service.DocumentTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -53,5 +55,11 @@ public class DocumentTypeController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<DeleteDocumentTypeResponse> deleteDocumentType(
+            @PathVariable Integer id) throws Exception {
+        return new ResponseEntity<>(documentTypeService.deleteDocumentType(id), HttpStatus.OK);
     }
 }

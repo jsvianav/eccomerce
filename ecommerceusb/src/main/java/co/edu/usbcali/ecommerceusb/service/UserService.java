@@ -1,6 +1,7 @@
 package co.edu.usbcali.ecommerceusb.service;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateUserRequest;
+import co.edu.usbcali.ecommerceusb.dto.DeleteUserResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateUserRequest;
 import co.edu.usbcali.ecommerceusb.dto.UserResponse;
 
@@ -12,4 +13,5 @@ public interface UserService {
     UserResponse getUserByEmail(String email) throws Exception;
     UserResponse createUser(CreateUserRequest createUserRequest) throws Exception;
     UserResponse updateUser(Integer id, UpdateUserRequest updateUserRequest) throws Exception;
+    DeleteUserResponse deleteUser(Integer id) throws Exception;
 }

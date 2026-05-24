@@ -5,9 +5,10 @@ import co.edu.usbcali.ecommerceusb.dto.CreateCartRequest;
 import co.edu.usbcali.ecommerceusb.dto.UpdateCartRequest;
 import co.edu.usbcali.ecommerceusb.service.CartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import co.edu.usbcali.ecommerceusb.dto.DeleteCartResponse;
 import java.util.List;
 
 /**
@@ -77,5 +78,11 @@ public class CartController {
             // Retorna 400 con el mensaje de error si la operación falla
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<DeleteCartResponse> deleteCart(
+            @PathVariable Integer id) throws Exception {
+        return new ResponseEntity<>(cartService.deleteCart(id), HttpStatus.OK);
     }
 }
