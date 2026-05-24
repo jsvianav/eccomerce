@@ -1,13 +1,17 @@
 package co.edu.usbcali.ecommerceusb.mapper;
 
+import co.edu.usbcali.ecommerceusb.dto.CreateDocumentTypeRequest;
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
 import co.edu.usbcali.ecommerceusb.model.DocumentType;
 
-import java.util.ArrayList;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public class DocumentTypeMapper {
 
+    /**
+     * Convierte un modelo DocumentType en su DTO de respuesta DocumentTypeResponse.
+     */
     public static DocumentTypeResponse modelToDocumentTypeResponse(DocumentType documentType) {
         return DocumentTypeResponse.builder()
                 .id(documentType.getId())
@@ -16,19 +20,27 @@ public class DocumentTypeMapper {
                 .build();
     }
 
-    /*
-    * Este método va a iterar una lista de DocumentType y la va a convertir en
-    *         una lista de documentTypeResponse */
+    /**
+     * Convierte una lista de modelos DocumentType en una lista de DTOs DocumentTypeResponse.
+     * Usa streams para iterar la lista y mapear cada elemento.
+     */
     public static List<DocumentTypeResponse> modelToDocumentTypeResponseList(
             List<DocumentType> documentTypes) {
-        // Implementación usando for each
-        /*List<DocumentTypeResponse> documentTypeResponseList = new ArrayList<>();
-        for(DocumentType documentType : documentTypes) {
-            DocumentTypeResponse documentTypeResponse = modelToDocumentTypeResponse(documentType);
-            documentTypeResponseList.add(documentTypeResponse);
-        }
-        return documentTypeResponseList;*/
         return documentTypes.stream().map(DocumentTypeMapper::modelToDocumentTypeResponse).toList();
     }
 
+    /**
+     * Convierte un CreateDocumentTypeRequest en el modelo DocumentType.
+     * Establece la fecha de creación automáticamente con el momento actual.
+     */
+    public static DocumentType createDocumentTypeRequestToDocumentType(CreateDocumentTypeRequest req) {
+        return DocumentType.builder()
+                // Asigna el código del tipo de documento (ej: "CC", "NIT")
+                .code(req.getCode())
+                // Asigna el nombre descriptivo del tipo de documento
+                .name(req.getName())
+                // Establece la fecha y hora actual como fecha de creación
+                .createdAt(OffsetDateTime.now())
+                .build();
+    }
 }

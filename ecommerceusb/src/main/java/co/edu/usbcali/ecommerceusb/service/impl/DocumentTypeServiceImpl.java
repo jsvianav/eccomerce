@@ -1,5 +1,6 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
 
+import co.edu.usbcali.ecommerceusb.dto.CreateDocumentTypeRequest;
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateDocumentTypeRequest;
 import co.edu.usbcali.ecommerceusb.mapper.DocumentTypeMapper;
@@ -10,10 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class DocumentTypeServiceImpl implements DocumentTypeService {
 
+    // Repositorio para acceder a la tabla document_types en la base de datos
     @Autowired
     private DocumentTypeRepository documentTypeRepository;
 
@@ -42,6 +45,26 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
         DocumentType documentType = documentTypeRepository.findById(id)
                 .orElseThrow(() -> new Exception(String.format("Tipo de documento no encontrado con el id: %d", id)));
         // Convierte la entidad al objeto de respuesta y lo retorna
+        return DocumentTypeMapper.modelToDocumentTypeResponse(documentType);
+    }
+
+    /**
+     * Crea un nuevo tipo de documento en la base de datos.
+     * Valida que el request no sea nulo y que el campo name no esté vacío.
+     */
+    @Override
+    public DocumentTypeResponse createDocumentType(CreateDocumentTypeRequest req) throws Exception {
+        // Valida que el objeto request no sea nulo
+        if (Objects.isNull(req))
+            throw new Exception("El objeto createDocumentTypeRequest no puede ser nulo");
+        // Valida que el campo name no sea nulo ni vacío
+        if (Objects.isNull(req.getName()) || req.getName().isBlank())
+            throw new Exception("El campo name no puede ser nulo ni vacío");
+        // Convierte el request al modelo DocumentType usando el mapper
+        DocumentType documentType = DocumentTypeMapper.createDocumentTypeRequestToDocumentType(req);
+        // Guarda el nuevo tipo de documento en la base de datos
+        documentTypeRepository.save(documentType);
+        // Retorna la respuesta mapeada del tipo de documento creado
         return DocumentTypeMapper.modelToDocumentTypeResponse(documentType);
     }
 
