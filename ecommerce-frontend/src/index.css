@@ -1,0 +1,164 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ── Warm indigo-tinted neutrals (Minimalist-UI warm canvas) ── */
+    --background:  240 22% 98.4%;
+    --foreground:  243 35%  9%;
+
+    --card:        0   0% 100%;
+    --card-foreground: 243 35% 9%;
+
+    --sidebar:     243 18% 96.5%;
+    --sidebar-foreground: 243 35% 9%;
+
+    --popover:     0   0% 100%;
+    --popover-foreground: 243 35% 9%;
+
+    /* ── Rich indigo — not generic blue (impeccable: first-order reflex check) ── */
+    --primary:     243 72% 57%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary:   243 16% 93%;
+    --secondary-foreground: 243 28% 22%;
+
+    --muted:       243 14% 94%;
+    --muted-foreground: 243 10% 49%;
+
+    --accent:      243 16% 93%;
+    --accent-foreground: 243 28% 22%;
+
+    --destructive: 0   76% 54%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border:      243 14% 90%;
+    --input:       243 14% 90%;
+    --ring:        243 72% 57%;
+    --radius:      0.5rem;
+
+    /* Semantic pastel badge tokens (minimalist-ui §4) */
+    --badge-blue-bg:   220 80% 95%;
+    --badge-blue-text: 220 65% 38%;
+    --badge-green-bg:  145 50% 91%;
+    --badge-green-text:145 65% 30%;
+    --badge-red-bg:    0   80% 95%;
+    --badge-red-text:  0   65% 42%;
+    --badge-amber-bg:  38  90% 92%;
+    --badge-amber-text:35  80% 36%;
+    --badge-slate-bg:  243 14% 92%;
+    --badge-slate-text:243 14% 42%;
+  }
+
+  .dark {
+    --background:  243 30%  6.5%;
+    --foreground:  243 14% 92%;
+
+    --card:        243 26%  9%;
+    --card-foreground: 243 14% 92%;
+
+    --sidebar:     243 26%  7.8%;
+    --sidebar-foreground: 243 14% 92%;
+
+    --popover:     243 26%  9%;
+    --popover-foreground: 243 14% 92%;
+
+    --primary:     243 78% 64%;
+    --primary-foreground: 243 30% 7%;
+
+    --secondary:   243 20% 15%;
+    --secondary-foreground: 243 14% 78%;
+
+    --muted:       243 20% 13%;
+    --muted-foreground: 243 10% 52%;
+
+    --accent:      243 20% 14%;
+    --accent-foreground: 243 14% 78%;
+
+    --destructive: 0   60% 46%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border:      243 20% 16%;
+    --input:       243 20% 16%;
+    --ring:        243 78% 64%;
+
+    --badge-blue-bg:   220 40% 18%;
+    --badge-blue-text: 220 70% 65%;
+    --badge-green-bg:  145 30% 16%;
+    --badge-green-text:145 55% 50%;
+    --badge-red-bg:    0   30% 18%;
+    --badge-red-text:  0   70% 60%;
+    --badge-amber-bg:  38  40% 16%;
+    --badge-amber-text:38  80% 60%;
+    --badge-slate-bg:  243 20% 18%;
+    --badge-slate-text:243 14% 58%;
+  }
+}
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "kern" 1, "liga" 1;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Tabular figures for data — Emil: unseen details compound */
+  td, .tabular { font-variant-numeric: tabular-nums; }
+}
+
+/* ─── Keyframes (Emil: nothing appears from nothing) ─── */
+@keyframes dialog-in {
+  from { opacity: 0; transform: scale(0.96) translateY(4px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);   }
+}
+
+@keyframes dropdown-in {
+  from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);    }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+.animate-dialog-in   { animation: dialog-in   180ms cubic-bezier(0.16,1,0.3,1) both; }
+.animate-dropdown-in { animation: dropdown-in 140ms cubic-bezier(0.16,1,0.3,1) both; }
+.animate-fade-up     { animation: fade-up     180ms cubic-bezier(0.16,1,0.3,1) both; }
+.animate-fade-in     { animation: fade-up     180ms cubic-bezier(0.16,1,0.3,1) both; }
+
+/* Shimmer skeleton (redesign-existing: loading states) */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted) / 0.7) 25%,
+    hsl(var(--muted) / 0.4) 50%,
+    hsl(var(--muted) / 0.7) 75%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: hsl(var(--border)); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.35); }

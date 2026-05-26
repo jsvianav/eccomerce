@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+.DS_Store?
+._*
+
+# Claude Code session data (local only)
+.claude/
+
+# Frontend dependencies and build output
+ecommerce-frontend/node_modules/
+ecommerce-frontend/dist/
+
+# Backend
+ecommerceusb/target/
+
+# IDE
+.idea/
+*.iml
