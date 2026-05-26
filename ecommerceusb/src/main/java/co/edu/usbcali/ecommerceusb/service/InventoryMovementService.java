@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface InventoryMovementService {
     List<InventoryMovementResponse> getInventoryMovements();
-    InventoryMovementResponse getInventoryMovementById(Integer id) throws Exception;
-    InventoryMovementResponse createInventoryMovement(CreateInventoryMovementRequest createInventoryMovementRequest) throws Exception;
-    InventoryMovementResponse updateInventoryMovement(Integer id, UpdateInventoryMovementRequest updateInventoryMovementRequest) throws Exception;
-    DeleteInventoryMovementResponse deleteInventoryMovement(Integer id) throws Exception;
+    InventoryMovementResponse getInventoryMovementById(Integer id);
+    InventoryMovementResponse createInventoryMovement(CreateInventoryMovementRequest createInventoryMovementRequest);
+    InventoryMovementResponse updateInventoryMovement(Integer id, UpdateInventoryMovementRequest updateInventoryMovementRequest);
+    DeleteInventoryMovementResponse deleteInventoryMovement(Integer id);
 }

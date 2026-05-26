@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface CategoryService {
     List<CategoryResponse> getCategories();
-    CategoryResponse getCategoryById(Integer id) throws Exception;
-    CategoryResponse createCategory(CreateCategoryRequest createCategoryRequest) throws Exception;
-    CategoryResponse updateCategory(Integer id, UpdateCategoryRequest updateCategoryRequest) throws Exception;
-    DeleteCategoryResponse deleteCategory(Integer id) throws Exception;
+    CategoryResponse getCategoryById(Integer id);
+    CategoryResponse createCategory(CreateCategoryRequest createCategoryRequest);
+    CategoryResponse updateCategory(Integer id, UpdateCategoryRequest updateCategoryRequest);
+    DeleteCategoryResponse deleteCategory(Integer id);
 }

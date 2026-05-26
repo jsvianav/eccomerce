@@ -20,68 +20,36 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
-    // Inyección del servicio que contiene la lógica de negocio de usuarios
     @Autowired
     private UserService userService;
 
-    /**
-     * Retorna la lista completa de usuarios registrados.
-     * No requiere parámetros. Siempre retorna 200 OK.
-     */
+    /** Retorna la lista completa de usuarios registrados. */
     @GetMapping
     public ResponseEntity<List<UserResponse>> getUsers() {
-        // Delega al servicio y envuelve el resultado en un 200 OK
         return ResponseEntity.ok(userService.getUsers());
     }
 
-    /**
-     * Busca un usuario por su ID.
-     * Retorna 200 OK si existe, o 400 Bad Request si el ID es inválido o no se encuentra.
-     */
+    /** Busca un usuario por su ID. */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getUserById(@PathVariable Integer id) {
-        try {
-            // Intenta buscar el usuario; retorna 200 si existe
-            return ResponseEntity.ok(userService.getUserById(id));
-        } catch (Exception e) {
-            // Si el servicio lanza una excepción, retorna 400 con el mensaje de error
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Integer id) {
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
-    /**
-     * Crea un nuevo usuario en el sistema.
-     * Valida unicidad de email y de número de documento antes de persistir.
-     * Retorna 200 OK con el usuario creado, o 400 si los datos son inválidos o hay duplicados.
-     */
+    /** Crea un nuevo usuario en el sistema. Retorna 201 Created. */
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody CreateUserRequest createUserRequest) {
-        try {
-            // Pasa el request al servicio para que lo valide y persista
-            return ResponseEntity.ok(userService.createUser(createUserRequest));
-        } catch (Exception e) {
-            // Retorna 400 con el mensaje de validación si algo falla
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<UserResponse> createUser(@RequestBody CreateUserRequest createUserRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(createUserRequest));
     }
 
-    /**
-     * Actualiza los datos de un usuario existente.
-     * Solo modifica los campos enviados en el body; valida unicidad de email si este cambia.
-     */
+    /** Actualiza los datos de un usuario existente. */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Integer id, @RequestBody UpdateUserRequest updateUserRequest) {
-        try {
-            // Pasa el id y el request al servicio para que actualice solo los campos recibidos
-            return ResponseEntity.ok(userService.updateUser(id, updateUserRequest));
-        } catch (Exception e) {
-            // Retorna 400 con el mensaje de error si la operación falla
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Integer id, @RequestBody UpdateUserRequest updateUserRequest) {
+        return ResponseEntity.ok(userService.updateUser(id, updateUserRequest));
     }
 
+    /** Elimina un usuario por su ID. */
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeleteUserResponse> deleteUser(@PathVariable Integer id) throws Exception {
-        return new ResponseEntity<>(userService.deleteUser(id), HttpStatus.OK);
+    public ResponseEntity<DeleteUserResponse> deleteUser(@PathVariable Integer id) {
+        return ResponseEntity.ok(userService.deleteUser(id));
     }
 }

@@ -4,6 +4,8 @@ import co.edu.usbcali.ecommerceusb.dto.CreateDocumentTypeRequest;
 import co.edu.usbcali.ecommerceusb.dto.DeleteDocumentTypeResponse;
 import co.edu.usbcali.ecommerceusb.dto.DocumentTypeResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateDocumentTypeRequest;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 import co.edu.usbcali.ecommerceusb.mapper.DocumentTypeMapper;
 import co.edu.usbcali.ecommerceusb.model.DocumentType;
 import co.edu.usbcali.ecommerceusb.repository.DocumentTypeRepository;
@@ -28,9 +30,7 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     @Override
     public List<DocumentTypeResponse> getDocumentTypes() {
         List<DocumentType> documentTypes = documentTypeRepository.findAll();
-        // Si no hay tipos de documento, retorna lista vacía en lugar de null
         if (documentTypes.isEmpty()) return List.of();
-        // Convierte la lista de entidades al formato de respuesta
         return DocumentTypeMapper.modelToDocumentTypeResponseList(documentTypes);
     }
 
@@ -39,13 +39,10 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
      * Lanza una excepción si el ID es inválido o si el tipo de documento no existe.
      */
     @Override
-    public DocumentTypeResponse getDocumentTypeById(Integer id) throws Exception {
-        // Valida que el id no sea nulo y sea mayor a 0
-        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para buscar");
-        // Busca el tipo de documento; lanza excepción si no se encuentra
+    public DocumentTypeResponse getDocumentTypeById(Integer id) {
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar el id para buscar");
         DocumentType documentType = documentTypeRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Tipo de documento no encontrado con el id: %d", id)));
-        // Convierte la entidad al objeto de respuesta y lo retorna
+                .orElseThrow(() -> new NotFoundException(String.format("Tipo de documento no encontrado con el id: %d", id)));
         return DocumentTypeMapper.modelToDocumentTypeResponse(documentType);
     }
 
@@ -54,18 +51,13 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
      * Valida que el request no sea nulo y que el campo name no esté vacío.
      */
     @Override
-    public DocumentTypeResponse createDocumentType(CreateDocumentTypeRequest req) throws Exception {
-        // Valida que el objeto request no sea nulo
+    public DocumentTypeResponse createDocumentType(CreateDocumentTypeRequest req) {
         if (Objects.isNull(req))
-            throw new Exception("El objeto createDocumentTypeRequest no puede ser nulo");
-        // Valida que el campo name no sea nulo ni vacío
+            throw new BadRequestException("El objeto createDocumentTypeRequest no puede ser nulo");
         if (Objects.isNull(req.getName()) || req.getName().isBlank())
-            throw new Exception("El campo name no puede ser nulo ni vacío");
-        // Convierte el request al modelo DocumentType usando el mapper
+            throw new BadRequestException("El campo name no puede ser nulo ni vacío");
         DocumentType documentType = DocumentTypeMapper.createDocumentTypeRequestToDocumentType(req);
-        // Guarda el nuevo tipo de documento en la base de datos
         documentTypeRepository.save(documentType);
-        // Retorna la respuesta mapeada del tipo de documento creado
         return DocumentTypeMapper.modelToDocumentTypeResponse(documentType);
     }
 
@@ -75,35 +67,26 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
      * el ID es inválido o el tipo de documento no existe.
      */
     @Override
-    public DocumentTypeResponse updateDocumentType(Integer id, UpdateDocumentTypeRequest req) throws Exception {
-        // Valida que el id no sea nulo y sea mayor a 0
-        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
-        // Busca el tipo de documento; lanza excepción si no se encuentra
+    public DocumentTypeResponse updateDocumentType(Integer id, UpdateDocumentTypeRequest req) {
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar un id válido");
         DocumentType documentType = documentTypeRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Tipo de documento no encontrado con el id: %d", id)));
-        // Actualiza el nombre solo si viene en el request y no está vacío
+                .orElseThrow(() -> new NotFoundException(String.format("Tipo de documento no encontrado con el id: %d", id)));
         if (req.getName() != null && !req.getName().isBlank()) documentType.setName(req.getName());
-        // Actualiza el código solo si viene en el request y no está vacío
         if (req.getCode() != null && !req.getCode().isBlank()) documentType.setCode(req.getCode());
-        // Guarda los cambios en la base de datos
         documentTypeRepository.save(documentType);
-        // Retorna la respuesta mapeada del tipo de documento actualizado
         return DocumentTypeMapper.modelToDocumentTypeResponse(documentType);
     }
+
     /**
      * Elimina un DocumentType existente por su ID.
      * Lanza excepción si el ID es inválido o si el DocumentType no existe.
      */
     @Override
-    public DeleteDocumentTypeResponse deleteDocumentType(Integer id) throws Exception {
-        // Valida que el id no sea nulo y sea mayor a 0
-        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
-        // Busca el DocumentType; lanza excepción si no se encuentra
+    public DeleteDocumentTypeResponse deleteDocumentType(Integer id) {
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar un id válido");
         DocumentType documentType = documentTypeRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("DocumentType no encontrado con el id: %d", id)));
-        // Elimina el registro de la base de datos
+                .orElseThrow(() -> new NotFoundException(String.format("DocumentType no encontrado con el id: %d", id)));
         documentTypeRepository.delete(documentType);
-        // Retorna la respuesta con mensaje de confirmación
         return new DeleteDocumentTypeResponse("DocumentType con id " + id + " eliminado correctamente");
     }
 }

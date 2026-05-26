@@ -20,68 +20,36 @@ import java.util.List;
 @RequestMapping("/order")
 public class OrderController {
 
-    // Inyección del servicio que contiene la lógica de negocio de órdenes
     @Autowired
     private OrderService orderService;
 
-    /**
-     * Retorna la lista completa de órdenes registradas.
-     * No requiere parámetros. Siempre retorna 200 OK.
-     */
+    /** Retorna la lista completa de órdenes registradas. */
     @GetMapping
     public ResponseEntity<List<OrderResponse>> getOrders() {
-        // Delega al servicio y envuelve el resultado en un 200 OK
         return ResponseEntity.ok(orderService.getOrders());
     }
 
-    /**
-     * Busca una orden por su ID.
-     * Retorna 200 OK si existe, o 400 Bad Request si el ID es inválido o no se encuentra.
-     */
+    /** Busca una orden por su ID. */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOrderById(@PathVariable Integer id) {
-        try {
-            // Intenta buscar la orden; retorna 200 si existe
-            return ResponseEntity.ok(orderService.getOrderById(id));
-        } catch (Exception e) {
-            // Si el servicio lanza una excepción, retorna 400 con el mensaje de error
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable Integer id) {
+        return ResponseEntity.ok(orderService.getOrderById(id));
     }
 
-    /**
-     * Crea una nueva orden de compra.
-     * Retorna 200 OK con la orden creada, o 400 si los datos son inválidos.
-     */
+    /** Crea una nueva orden de compra. Retorna 201 Created. */
     @PostMapping
-    public ResponseEntity<?> createOrder(@RequestBody CreateOrderRequest createOrderRequest) {
-        try {
-            // Pasa el request al servicio para que lo valide y persista
-            return ResponseEntity.ok(orderService.createOrder(createOrderRequest));
-        } catch (Exception e) {
-            // Retorna 400 con el mensaje de validación si algo falla
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<OrderResponse> createOrder(@RequestBody CreateOrderRequest createOrderRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(createOrderRequest));
     }
 
-    /**
-     * Actualiza una orden existente identificada por su ID.
-     * Solo modifica los campos enviados en el body (status, totalAmount, currency).
-     */
+    /** Actualiza una orden existente identificada por su ID. */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOrder(@PathVariable Integer id, @RequestBody UpdateOrderRequest updateOrderRequest) {
-        try {
-            // Pasa el id y el request al servicio para que actualice solo los campos recibidos
-            return ResponseEntity.ok(orderService.updateOrder(id, updateOrderRequest));
-        } catch (Exception e) {
-            // Retorna 400 con el mensaje de error si la operación falla
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<OrderResponse> updateOrder(@PathVariable Integer id, @RequestBody UpdateOrderRequest updateOrderRequest) {
+        return ResponseEntity.ok(orderService.updateOrder(id, updateOrderRequest));
     }
 
+    /** Elimina una orden por su ID. */
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeleteOrderResponse> deleteOrder(
-            @PathVariable Integer id) throws Exception {
-        return new ResponseEntity<>(orderService.deleteOrder(id), HttpStatus.OK);
+    public ResponseEntity<DeleteOrderResponse> deleteOrder(@PathVariable Integer id) {
+        return ResponseEntity.ok(orderService.deleteOrder(id));
     }
 }

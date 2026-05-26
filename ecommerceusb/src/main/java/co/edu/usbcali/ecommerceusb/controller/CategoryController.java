@@ -20,68 +20,36 @@ import java.util.List;
 @RequestMapping("/category")
 public class CategoryController {
 
-    // Inyección del servicio que contiene la lógica de negocio de categorías
     @Autowired
     private CategoryService categoryService;
 
-    /**
-     * Retorna la lista completa de categorías registradas.
-     * No requiere parámetros. Siempre retorna 200 OK.
-     */
+    /** Retorna la lista completa de categorías registradas. */
     @GetMapping
     public ResponseEntity<List<CategoryResponse>> getCategories() {
-        // Delega al servicio y envuelve el resultado en un 200 OK
         return ResponseEntity.ok(categoryService.getCategories());
     }
 
-    /**
-     * Busca una categoría por su ID.
-     * Retorna 200 OK si existe, o 400 Bad Request si el ID es inválido o no se encuentra.
-     */
+    /** Busca una categoría por su ID. */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCategoryById(@PathVariable Integer id) {
-        try {
-            // Intenta buscar la categoría; retorna 200 si existe
-            return ResponseEntity.ok(categoryService.getCategoryById(id));
-        } catch (Exception e) {
-            // Si el servicio lanza una excepción, retorna 400 con el mensaje de error
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<CategoryResponse> getCategoryById(@PathVariable Integer id) {
+        return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
 
-    /**
-     * Crea una nueva categoría.
-     * Retorna 200 OK con la categoría creada, o 400 si el nombre está vacío.
-     */
+    /** Crea una nueva categoría. Retorna 201 Created. */
     @PostMapping
-    public ResponseEntity<?> createCategory(@RequestBody CreateCategoryRequest createCategoryRequest) {
-        try {
-            // Pasa el request al servicio para que lo valide y persista
-            return ResponseEntity.ok(categoryService.createCategory(createCategoryRequest));
-        } catch (Exception e) {
-            // Retorna 400 con el mensaje de validación si algo falla
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<CategoryResponse> createCategory(@RequestBody CreateCategoryRequest createCategoryRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.createCategory(createCategoryRequest));
     }
 
-    /**
-     * Actualiza el nombre de una categoría existente.
-     * Solo modifica el campo enviado en el body.
-     */
+    /** Actualiza el nombre de una categoría existente. */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable Integer id, @RequestBody UpdateCategoryRequest updateCategoryRequest) {
-        try {
-            // Pasa el id y el request al servicio para que actualice solo los campos recibidos
-            return ResponseEntity.ok(categoryService.updateCategory(id, updateCategoryRequest));
-        } catch (Exception e) {
-            // Retorna 400 con el mensaje de error si la operación falla
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<CategoryResponse> updateCategory(@PathVariable Integer id, @RequestBody UpdateCategoryRequest updateCategoryRequest) {
+        return ResponseEntity.ok(categoryService.updateCategory(id, updateCategoryRequest));
     }
 
+    /** Elimina una categoría por su ID. */
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeleteCategoryResponse> deleteCategory(
-            @PathVariable Integer id) throws Exception {
-        return new ResponseEntity<>(categoryService.deleteCategory(id), HttpStatus.OK);
+    public ResponseEntity<DeleteCategoryResponse> deleteCategory(@PathVariable Integer id) {
+        return ResponseEntity.ok(categoryService.deleteCategory(id));
     }
 }

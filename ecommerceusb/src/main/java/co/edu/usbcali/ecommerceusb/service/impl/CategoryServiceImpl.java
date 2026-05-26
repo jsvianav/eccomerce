@@ -4,6 +4,8 @@ import co.edu.usbcali.ecommerceusb.dto.CategoryResponse;
 import co.edu.usbcali.ecommerceusb.dto.CreateCategoryRequest;
 import co.edu.usbcali.ecommerceusb.dto.DeleteCategoryResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateCategoryRequest;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 import co.edu.usbcali.ecommerceusb.mapper.CategoryMapper;
 import co.edu.usbcali.ecommerceusb.model.Category;
 import co.edu.usbcali.ecommerceusb.repository.CategoryRepository;
@@ -27,9 +29,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryResponse> getCategories() {
         List<Category> categories = categoryRepository.findAll();
-        // Si no hay categorías, retorna lista vacía en lugar de null
         if (categories.isEmpty()) return List.of();
-        // Convierte la lista de entidades al formato de respuesta
         return CategoryMapper.modelToCategoryResponseList(categories);
     }
 
@@ -38,13 +38,10 @@ public class CategoryServiceImpl implements CategoryService {
      * Lanza una excepción si el ID es inválido o si la categoría no existe.
      */
     @Override
-    public CategoryResponse getCategoryById(Integer id) throws Exception {
-        // Valida que el id no sea nulo y sea mayor a 0
-        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para buscar");
-        // Busca la categoría; lanza excepción si no se encuentra
+    public CategoryResponse getCategoryById(Integer id) {
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar el id para buscar");
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Categoría no encontrada con el id: %d", id)));
-        // Convierte la entidad al objeto de respuesta y lo retorna
+                .orElseThrow(() -> new NotFoundException(String.format("Categoría no encontrada con el id: %d", id)));
         return CategoryMapper.modelToCategoryResponse(category);
     }
 
@@ -53,18 +50,13 @@ public class CategoryServiceImpl implements CategoryService {
      * Valida que el request no sea nulo y que el campo name no esté vacío.
      */
     @Override
-    public CategoryResponse createCategory(CreateCategoryRequest req) throws Exception {
-        // Valida que el objeto request no sea nulo
+    public CategoryResponse createCategory(CreateCategoryRequest req) {
         if (Objects.isNull(req))
-            throw new Exception("El objeto createCategoryRequest no puede ser nulo");
-        // Valida que el campo name no esté vacío ni nulo
+            throw new BadRequestException("El objeto createCategoryRequest no puede ser nulo");
         if (Objects.isNull(req.getName()) || req.getName().isBlank())
-            throw new Exception("El campo name no puede ser nulo ni vacío");
-        // Usa el mapper para convertir el request a la entidad Category
+            throw new BadRequestException("El campo name no puede ser nulo ni vacío");
         Category category = CategoryMapper.createCategoryRequestToCategory(req);
-        // Guarda la categoría en la base de datos
         categoryRepository.save(category);
-        // Retorna la respuesta mapeada de la categoría creada
         return CategoryMapper.modelToCategoryResponse(category);
     }
 
@@ -74,33 +66,25 @@ public class CategoryServiceImpl implements CategoryService {
      * el ID es inválido o la categoría no existe.
      */
     @Override
-    public CategoryResponse updateCategory(Integer id, UpdateCategoryRequest req) throws Exception {
-        // Valida que el id no sea nulo y sea mayor a 0
-        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
-        // Busca la categoría; lanza excepción si no se encuentra
+    public CategoryResponse updateCategory(Integer id, UpdateCategoryRequest req) {
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar un id válido");
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Categoría no encontrada con el id: %d", id)));
-        // Actualiza el nombre solo si viene en el request y no está vacío
+                .orElseThrow(() -> new NotFoundException(String.format("Categoría no encontrada con el id: %d", id)));
         if (req.getName() != null && !req.getName().isBlank()) category.setName(req.getName());
-        // Guarda los cambios en la base de datos
         categoryRepository.save(category);
-        // Retorna la respuesta mapeada de la categoría actualizada
         return CategoryMapper.modelToCategoryResponse(category);
     }
+
     /**
      * Elimina una categoría existente por su ID.
      * Lanza excepción si el ID es inválido o si la categoría no existe.
      */
     @Override
-    public DeleteCategoryResponse deleteCategory(Integer id) throws Exception {
-        // Valida que el id no sea nulo y sea mayor a 0
-        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
-        // Busca la categoría; lanza excepción si no se encuentra
+    public DeleteCategoryResponse deleteCategory(Integer id) {
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar un id válido");
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Categoría no encontrada con el id: %d", id)));
-        // Elimina el registro de la base de datos
+                .orElseThrow(() -> new NotFoundException(String.format("Categoría no encontrada con el id: %d", id)));
         categoryRepository.delete(category);
-        // Retorna la respuesta con mensaje de confirmación
         return new DeleteCategoryResponse("Categoría con id " + id + " eliminada correctamente");
     }
 }

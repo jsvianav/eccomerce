@@ -17,7 +17,6 @@ import java.util.List;
 @RequestMapping("/documentType")
 public class DocumentTypeController {
 
-    // Inyección del servicio que contiene la lógica de negocio de DocumentType
     @Autowired
     private DocumentTypeService documentTypeService;
 
@@ -27,39 +26,27 @@ public class DocumentTypeController {
         return ResponseEntity.ok(documentTypeService.getDocumentTypes());
     }
 
-    // Busca un tipo de documento por su ID; retorna 400 si no existe
+    // Busca un tipo de documento por su ID
     @GetMapping("/{id}")
-    public ResponseEntity<?> getDocumentTypeById(@PathVariable Integer id) {
-        try {
-            return ResponseEntity.ok(documentTypeService.getDocumentTypeById(id));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<DocumentTypeResponse> getDocumentTypeById(@PathVariable Integer id) {
+        return ResponseEntity.ok(documentTypeService.getDocumentTypeById(id));
     }
 
-    // Crea un nuevo tipo de documento con los datos del body
+    // Crea un nuevo tipo de documento con los datos del body. Retorna 201 Created.
     @PostMapping
-    public ResponseEntity<?> createDocumentType(@RequestBody CreateDocumentTypeRequest createDocumentTypeRequest) {
-        try {
-            return ResponseEntity.ok(documentTypeService.createDocumentType(createDocumentTypeRequest));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<DocumentTypeResponse> createDocumentType(@RequestBody CreateDocumentTypeRequest createDocumentTypeRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(documentTypeService.createDocumentType(createDocumentTypeRequest));
     }
 
     // Actualiza un tipo de documento existente por su ID
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateDocumentType(@PathVariable Integer id, @RequestBody UpdateDocumentTypeRequest updateDocumentTypeRequest) {
-        try {
-            return ResponseEntity.ok(documentTypeService.updateDocumentType(id, updateDocumentTypeRequest));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<DocumentTypeResponse> updateDocumentType(@PathVariable Integer id, @RequestBody UpdateDocumentTypeRequest updateDocumentTypeRequest) {
+        return ResponseEntity.ok(documentTypeService.updateDocumentType(id, updateDocumentTypeRequest));
     }
 
+    // Elimina un tipo de documento por su ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeleteDocumentTypeResponse> deleteDocumentType(
-            @PathVariable Integer id) throws Exception {
-        return new ResponseEntity<>(documentTypeService.deleteDocumentType(id), HttpStatus.OK);
+    public ResponseEntity<DeleteDocumentTypeResponse> deleteDocumentType(@PathVariable Integer id) {
+        return ResponseEntity.ok(documentTypeService.deleteDocumentType(id));
     }
 }

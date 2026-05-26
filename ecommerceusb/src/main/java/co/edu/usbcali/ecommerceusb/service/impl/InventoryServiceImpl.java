@@ -4,6 +4,9 @@ import co.edu.usbcali.ecommerceusb.dto.CreateInventoryRequest;
 import co.edu.usbcali.ecommerceusb.dto.DeleteInventoryResponse;
 import co.edu.usbcali.ecommerceusb.dto.InventoryResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateInventoryRequest;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.InternalServerErrorException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 import co.edu.usbcali.ecommerceusb.mapper.InventoryMapper;
 import co.edu.usbcali.ecommerceusb.model.Inventory;
 import co.edu.usbcali.ecommerceusb.model.Product;
@@ -33,9 +36,7 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public List<InventoryResponse> getInventories() {
         List<Inventory> inventories = inventoryRepository.findAll();
-        // Si no hay registros de inventario, retorna lista vacía en lugar de null
         if (inventories.isEmpty()) return List.of();
-        // Convierte la lista de entidades al formato de respuesta
         return InventoryMapper.modelToInventoryResponseList(inventories);
     }
 
@@ -44,13 +45,10 @@ public class InventoryServiceImpl implements InventoryService {
      * Lanza una excepción si el ID es inválido o si el inventario no existe.
      */
     @Override
-    public InventoryResponse getInventoryById(Integer id) throws Exception {
-        // Valida que el id no sea nulo y sea mayor a 0
-        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para buscar");
-        // Busca el inventario; lanza excepción si no se encuentra
+    public InventoryResponse getInventoryById(Integer id) {
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar el id para buscar");
         Inventory inventory = inventoryRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Inventario no encontrado con el id: %d", id)));
-        // Convierte la entidad al objeto de respuesta y lo retorna
+                .orElseThrow(() -> new NotFoundException(String.format("Inventario no encontrado con el id: %d", id)));
         return InventoryMapper.modelToInventoryResponse(inventory);
     }
 
@@ -61,29 +59,23 @@ public class InventoryServiceImpl implements InventoryService {
      * Cada producto solo puede tener un único registro de inventario (relación 1 a 1).
      */
     @Override
-    public InventoryResponse createInventory(CreateInventoryRequest createInventoryRequest) throws Exception {
-        // Valida que el objeto request no sea nulo para evitar NullPointerException
+    public InventoryResponse createInventory(CreateInventoryRequest createInventoryRequest) {
         if (Objects.isNull(createInventoryRequest))
-            throw new Exception("El objeto createInventoryRequest no puede ser nulo");
-        // Valida que el productId no sea nulo y sea mayor a 0
+            throw new BadRequestException("El objeto createInventoryRequest no puede ser nulo");
         if (Objects.isNull(createInventoryRequest.getProductId()) || createInventoryRequest.getProductId() <= 0)
-            throw new Exception("El campo productId debe contener un valor mayor a 0");
-        // Valida que el stock no sea nulo ni negativo (puede ser 0 si el producto está agotado)
+            throw new BadRequestException("El campo productId debe contener un valor mayor a 0");
         if (Objects.isNull(createInventoryRequest.getStock()) || createInventoryRequest.getStock() < 0)
-            throw new Exception("El campo stock no puede ser nulo ni negativo");
-        // Verifica que el producto exista en la base de datos
+            throw new BadRequestException("El campo stock no puede ser nulo ni negativo");
         Product product = productRepository.findById(createInventoryRequest.getProductId())
-                .orElseThrow(() -> new Exception("El producto no existe"));
-        // Verifica que ese producto no tenga ya un inventario registrado (relación única 1 a 1)
+                .orElseThrow(() -> new NotFoundException("El producto no existe"));
+        // Inventario duplicado para el mismo producto → InternalServerErrorException
         if (inventoryRepository.existsByProductId(createInventoryRequest.getProductId()))
-            throw new Exception("Ya existe un inventario para el producto ingresado");
-        // Construye la entidad Inventory con los datos validados y la marca de tiempo actual
+            throw new InternalServerErrorException("Ya existe un inventario para el producto ingresado");
         Inventory inventory = Inventory.builder()
                 .product(product)
                 .stock(createInventoryRequest.getStock())
                 .updatedAt(OffsetDateTime.now())
                 .build();
-        // Guarda el inventario en la base de datos y retorna la respuesta mapeada
         return InventoryMapper.modelToInventoryResponse(inventoryRepository.save(inventory));
     }
 
@@ -93,33 +85,25 @@ public class InventoryServiceImpl implements InventoryService {
      * Lanza excepción si el ID es inválido o el inventario no existe.
      */
     @Override
-    public InventoryResponse updateInventory(Integer id, UpdateInventoryRequest req) throws Exception {
-        // Valida que el id no sea nulo y sea mayor a 0
-        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
-        // Busca el inventario; lanza excepción si no se encuentra
+    public InventoryResponse updateInventory(Integer id, UpdateInventoryRequest req) {
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar un id válido");
         Inventory inventory = inventoryRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Inventario no encontrado con el id: %d", id)));
-        // Actualiza el stock si viene en el request y no es negativo (0 es válido: producto agotado)
+                .orElseThrow(() -> new NotFoundException(String.format("Inventario no encontrado con el id: %d", id)));
         if (req.getQuantity() != null && req.getQuantity() >= 0) inventory.setStock(req.getQuantity());
-        // Actualiza la marca de tiempo de la última modificación
         inventory.setUpdatedAt(OffsetDateTime.now());
-        // Guarda los cambios en la base de datos y retorna la respuesta mapeada
         return InventoryMapper.modelToInventoryResponse(inventoryRepository.save(inventory));
     }
+
     /**
      * Elimina un Inventory existente por su ID.
      * Lanza excepción si el ID es inválido o si el Inventory no existe.
      */
     @Override
-    public DeleteInventoryResponse deleteInventory(Integer id) throws Exception {
-        // Valida que el id no sea nulo y sea mayor a 0
-        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
-        // Busca el Inventory; lanza excepción si no se encuentra
+    public DeleteInventoryResponse deleteInventory(Integer id) {
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar un id válido");
         Inventory inventory = inventoryRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Inventory no encontrado con el id: %d", id)));
-        // Elimina el registro de la base de datos
+                .orElseThrow(() -> new NotFoundException(String.format("Inventory no encontrado con el id: %d", id)));
         inventoryRepository.delete(inventory);
-        // Retorna la respuesta con mensaje de confirmación
         return new DeleteInventoryResponse("Inventory con id " + id + " eliminado correctamente");
     }
 }

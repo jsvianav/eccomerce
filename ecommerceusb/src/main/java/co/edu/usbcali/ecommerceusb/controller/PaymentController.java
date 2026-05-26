@@ -20,69 +20,39 @@ import java.util.List;
 @RequestMapping("/payment")
 public class PaymentController {
 
-    // Inyección del servicio que contiene la lógica de negocio de pagos
     @Autowired
     private PaymentService paymentService;
 
-    /**
-     * Retorna la lista completa de pagos registrados.
-     * No requiere parámetros. Siempre retorna 200 OK.
-     */
+    /** Retorna la lista completa de pagos registrados. */
     @GetMapping
     public ResponseEntity<List<PaymentResponse>> getPayments() {
-        // Delega al servicio y envuelve el resultado en un 200 OK
         return ResponseEntity.ok(paymentService.getPayments());
     }
 
-    /**
-     * Busca un pago por su ID.
-     * Retorna 200 OK si existe, o 400 Bad Request si el ID es inválido o no se encuentra.
-     */
+    /** Busca un pago por su ID. */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPaymentById(@PathVariable Integer id) {
-        try {
-            // Intenta buscar el pago; retorna 200 si existe
-            return ResponseEntity.ok(paymentService.getPaymentById(id));
-        } catch (Exception e) {
-            // Si el servicio lanza una excepción, retorna 400 con el mensaje de error
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<PaymentResponse> getPaymentById(@PathVariable Integer id) {
+        return ResponseEntity.ok(paymentService.getPaymentById(id));
     }
 
     /**
      * Registra un nuevo pago asociado a una orden.
-     * Usa idempotencyKey para evitar que el mismo pago se procese más de una vez.
-     * Retorna 200 OK con el pago creado, o 400 si los datos son inválidos o hay duplicado.
+     * Usa idempotencyKey para evitar que el mismo pago se procese más de una vez. Retorna 201 Created.
      */
     @PostMapping
-    public ResponseEntity<?> createPayment(@RequestBody CreatePaymentRequest createPaymentRequest) {
-        try {
-            // Pasa el request al servicio para que valide la idempotencyKey y persista el pago
-            return ResponseEntity.ok(paymentService.createPayment(createPaymentRequest));
-        } catch (Exception e) {
-            // Retorna 400 con el mensaje de validación si algo falla
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<PaymentResponse> createPayment(@RequestBody CreatePaymentRequest createPaymentRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(paymentService.createPayment(createPaymentRequest));
     }
 
-    /**
-     * Actualiza el estado o referencia del proveedor de un pago existente.
-     * Solo modifica los campos enviados en el body.
-     */
+    /** Actualiza el estado o referencia del proveedor de un pago existente. */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePayment(@PathVariable Integer id, @RequestBody UpdatePaymentRequest updatePaymentRequest) {
-        try {
-            // Pasa el id y el request al servicio para que actualice solo los campos recibidos
-            return ResponseEntity.ok(paymentService.updatePayment(id, updatePaymentRequest));
-        } catch (Exception e) {
-            // Retorna 400 con el mensaje de error si la operación falla
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<PaymentResponse> updatePayment(@PathVariable Integer id, @RequestBody UpdatePaymentRequest updatePaymentRequest) {
+        return ResponseEntity.ok(paymentService.updatePayment(id, updatePaymentRequest));
     }
 
+    /** Elimina un pago por su ID. */
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeletePaymentResponse> deletePayment(
-            @PathVariable Integer id) throws Exception {
-        return new ResponseEntity<>(paymentService.deletePayment(id), HttpStatus.OK);
+    public ResponseEntity<DeletePaymentResponse> deletePayment(@PathVariable Integer id) {
+        return ResponseEntity.ok(paymentService.deletePayment(id));
     }
 }

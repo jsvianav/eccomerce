@@ -4,6 +4,8 @@ import co.edu.usbcali.ecommerceusb.dto.CartResponse;
 import co.edu.usbcali.ecommerceusb.dto.CreateCartRequest;
 import co.edu.usbcali.ecommerceusb.dto.DeleteCartResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateCartRequest;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 import co.edu.usbcali.ecommerceusb.mapper.CartMapper;
 import co.edu.usbcali.ecommerceusb.model.Cart;
 import co.edu.usbcali.ecommerceusb.model.Cart.CartStatus;
@@ -34,9 +36,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public List<CartResponse> getCarts() {
         List<Cart> carts = cartRepository.findAll();
-        // Si no hay carritos en la base de datos, se retorna lista vacía en lugar de null
         if (carts.isEmpty()) return List.of();
-        // Convierte la lista de entidades Cart a una lista de objetos de respuesta CartResponse
         return CartMapper.modelToCartResponseList(carts);
     }
 
@@ -45,13 +45,10 @@ public class CartServiceImpl implements CartService {
      * Lanza una excepción si el ID es inválido o si el carrito no existe.
      */
     @Override
-    public CartResponse getCartById(Integer id) throws Exception {
-        // Valida que el id no sea nulo y sea mayor a 0
-        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para buscar");
-        // Busca el carrito en la base de datos; lanza excepción si no se encuentra
+    public CartResponse getCartById(Integer id) {
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar el id para buscar");
         Cart cart = cartRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Carrito no encontrado con el id: %d", id)));
-        // Convierte la entidad Cart al objeto de respuesta y lo retorna
+                .orElseThrow(() -> new NotFoundException(String.format("Carrito no encontrado con el id: %d", id)));
         return CartMapper.modelToCartResponse(cart);
     }
 
@@ -61,32 +58,25 @@ public class CartServiceImpl implements CartService {
      * verifica que el usuario exista y persiste el nuevo carrito.
      */
     @Override
-    public CartResponse createCart(CreateCartRequest req) throws Exception {
-        // Valida que el objeto request no sea nulo para evitar NullPointerException en las siguientes validaciones
+    public CartResponse createCart(CreateCartRequest req) {
         if (Objects.isNull(req))
-            throw new Exception("El objeto createCartRequest no puede ser nulo");
-        // Valida que el userId no sea nulo y sea mayor a 0
+            throw new BadRequestException("El objeto createCartRequest no puede ser nulo");
         if (Objects.isNull(req.getUserId()) || req.getUserId() <= 0)
-            throw new Exception("El campo userId debe contener un valor mayor a 0");
-        // Valida que el campo status no esté vacío ni nulo
+            throw new BadRequestException("El campo userId debe contener un valor mayor a 0");
         if (Objects.isNull(req.getStatus()) || req.getStatus().isBlank())
-            throw new Exception("El campo status no puede estar nulo ni vac\u00edo");
-        // Intenta convertir el string del status al enum CartStatus; lanza excepción si no es un valor válido
+            throw new BadRequestException("El campo status no puede estar nulo ni vacío");
         CartStatus cartStatus;
         try {
             cartStatus = CartStatus.valueOf(req.getStatus().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new Exception("El status debe ser ACTIVE, CHECKED_OUT o ABANDONED");
+            throw new BadRequestException("El status debe ser ACTIVE, CHECKED_OUT o ABANDONED");
         }
-        // Verifica que el usuario exista en la base de datos
         User user = userRepository.findById(req.getUserId())
-                .orElseThrow(() -> new Exception("El usuario no existe"));
-        // Construye la entidad Cart con los datos validados y las marcas de tiempo actuales
+                .orElseThrow(() -> new NotFoundException("El usuario no existe"));
         Cart cart = Cart.builder()
                 .user(user).status(cartStatus)
                 .createdAt(OffsetDateTime.now()).updatedAt(OffsetDateTime.now())
                 .build();
-        // Guarda el carrito en la base de datos y retorna la respuesta mapeada
         return CartMapper.modelToCartResponse(cartRepository.save(cart));
     }
 
@@ -96,40 +86,31 @@ public class CartServiceImpl implements CartService {
      * el ID es inválido, el carrito no existe o el status no es un valor permitido.
      */
     @Override
-    public CartResponse updateCart(Integer id, UpdateCartRequest req) throws Exception {
-        // Valida que el id no sea nulo y sea mayor a 0
-        if (id == null || id <= 0) throw new Exception("Debe ingresar un id v\u00e1lido");
-        // Busca el carrito en la base de datos; lanza excepción si no se encuentra
+    public CartResponse updateCart(Integer id, UpdateCartRequest req) {
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar un id válido");
         Cart cart = cartRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Carrito no encontrado con el id: %d", id)));
-        // Si se envió un status en el request, lo valida y actualiza en la entidad
+                .orElseThrow(() -> new NotFoundException(String.format("Carrito no encontrado con el id: %d", id)));
         if (req.getStatus() != null && !req.getStatus().isBlank()) {
             try {
-                // Convierte el string al enum CartStatus; lanza excepción si no es un valor permitido
                 cart.setStatus(CartStatus.valueOf(req.getStatus().toUpperCase()));
             } catch (IllegalArgumentException e) {
-                throw new Exception("El status debe ser ACTIVE, CHECKED_OUT o ABANDONED");
+                throw new BadRequestException("El status debe ser ACTIVE, CHECKED_OUT o ABANDONED");
             }
         }
-        // Actualiza la marca de tiempo de la última modificación
         cart.setUpdatedAt(OffsetDateTime.now());
-        // Guarda los cambios y retorna la respuesta mapeada
         return CartMapper.modelToCartResponse(cartRepository.save(cart));
     }
+
     /**
      * Elimina un carrito existente por su ID.
      * Lanza excepción si el ID es inválido o si el carrito no existe.
      */
     @Override
-    public DeleteCartResponse deleteCart(Integer id) throws Exception {
-        // Valida que el id no sea nulo y sea mayor a 0
-        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
-        // Busca el carrito; lanza excepción si no se encuentra
+    public DeleteCartResponse deleteCart(Integer id) {
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar un id válido");
         Cart cart = cartRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Carrito no encontrado con el id: %d", id)));
-        // Elimina el registro de la base de datos
+                .orElseThrow(() -> new NotFoundException(String.format("Carrito no encontrado con el id: %d", id)));
         cartRepository.delete(cart);
-        // Retorna la respuesta con mensaje de confirmación
         return new DeleteCartResponse("Carrito con id " + id + " eliminado correctamente");
     }
 }

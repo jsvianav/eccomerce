@@ -4,6 +4,9 @@ import co.edu.usbcali.ecommerceusb.dto.CreateUserRequest;
 import co.edu.usbcali.ecommerceusb.dto.DeleteUserResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateUserRequest;
 import co.edu.usbcali.ecommerceusb.dto.UserResponse;
+import co.edu.usbcali.ecommerceusb.exception.BadRequestException;
+import co.edu.usbcali.ecommerceusb.exception.InternalServerErrorException;
+import co.edu.usbcali.ecommerceusb.exception.NotFoundException;
 import co.edu.usbcali.ecommerceusb.mapper.UserMapper;
 import co.edu.usbcali.ecommerceusb.model.DocumentType;
 import co.edu.usbcali.ecommerceusb.model.User;
@@ -34,9 +37,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponse> getUsers() {
         List<User> users = userRepository.findAll();
-        // Si no hay usuarios, retorna lista vacía en lugar de null
         if (users.isEmpty()) return List.of();
-        // Convierte la lista de entidades al formato de respuesta
         return UserMapper.modelToUserResponse(users);
     }
 
@@ -45,13 +46,10 @@ public class UserServiceImpl implements UserService {
      * Lanza una excepción si el ID es inválido o si el usuario no existe.
      */
     @Override
-    public UserResponse getUserById(Integer id) throws Exception {
-        // Valida que el id no sea nulo y sea mayor a 0
-        if (id == null || id <= 0) throw new Exception("Debe ingresar el id para buscar");
-        // Busca el usuario; lanza excepción si no se encuentra
+    public UserResponse getUserById(Integer id) {
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar el id para buscar");
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Usuario no encontrado con el id: %d", id)));
-        // Convierte la entidad al objeto de respuesta y lo retorna
+                .orElseThrow(() -> new NotFoundException(String.format("Usuario no encontrado con el id: %d", id)));
         return UserMapper.modelToUserResponse(user);
     }
 
@@ -60,13 +58,10 @@ public class UserServiceImpl implements UserService {
      * Lanza una excepción si el email está vacío o si el usuario no existe.
      */
     @Override
-    public UserResponse getUserByEmail(String email) throws Exception {
-        // Valida que el email no sea nulo ni vacío
-        if (email == null || email.isBlank()) throw new Exception("Debe ingresar email");
-        // Busca el usuario por email; lanza excepción si no se encuentra
+    public UserResponse getUserByEmail(String email) {
+        if (email == null || email.isBlank()) throw new BadRequestException("Debe ingresar email");
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new Exception(String.format("Usuario no encontrado con el email: %s", email)));
-        // Convierte la entidad al objeto de respuesta y lo retorna
+                .orElseThrow(() -> new NotFoundException(String.format("Usuario no encontrado con el email: %s", email)));
         return UserMapper.modelToUserResponse(user);
     }
 
@@ -76,48 +71,34 @@ public class UserServiceImpl implements UserService {
      * exista, y que no haya duplicados por email ni por documento+tipo de documento.
      */
     @Override
-    public UserResponse createUser(CreateUserRequest req) throws Exception {
-        // Valida que el objeto request no sea nulo
+    public UserResponse createUser(CreateUserRequest req) {
         if (Objects.isNull(req))
-            throw new Exception("El objeto createUserRequest no puede ser nulo");
-        // Valida que el nombre completo no esté vacío
+            throw new BadRequestException("El objeto createUserRequest no puede ser nulo");
         if (Objects.isNull(req.getFullName()) || req.getFullName().isBlank())
-            throw new Exception("El campo fullName no puede ser nulo ni vacío");
-        // Valida que el teléfono no esté vacío
+            throw new BadRequestException("El campo fullName no puede ser nulo ni vacío");
         if (Objects.isNull(req.getPhone()) || req.getPhone().isBlank())
-            throw new Exception("El campo phone no puede ser nulo ni vacío");
-        // Valida que el email no esté vacío
+            throw new BadRequestException("El campo phone no puede ser nulo ni vacío");
         if (Objects.isNull(req.getEmail()) || req.getEmail().isBlank())
-            throw new Exception("El campo email no puede ser nulo ni vacío");
-        // Valida que el documentTypeId sea válido
+            throw new BadRequestException("El campo email no puede ser nulo ni vacío");
         if (req.getDocumentTypeId() == null || req.getDocumentTypeId() <= 0)
-            throw new Exception("El campo documentTypeId debe contener un valor mayor a 0");
-        // Valida que el número de documento no esté vacío
+            throw new BadRequestException("El campo documentTypeId debe contener un valor mayor a 0");
         if (Objects.isNull(req.getDocumentNumber()) || req.getDocumentNumber().isBlank())
-            throw new Exception("El campo documentNumber no puede estar nulo ni vacío");
-        // Valida que la fecha de nacimiento no esté vacía
+            throw new BadRequestException("El campo documentNumber no puede estar nulo ni vacío");
         if (Objects.isNull(req.getBirthDate()) || req.getBirthDate().isBlank())
-            throw new Exception("El campo birthDate no puede estar nulo ni vacío");
-        // Valida que el país no esté vacío
+            throw new BadRequestException("El campo birthDate no puede estar nulo ni vacío");
         if (Objects.isNull(req.getCountry()) || req.getCountry().isBlank())
-            throw new Exception("El campo country no puede estar nulo ni vacío");
-        // Valida que la dirección no esté vacía
+            throw new BadRequestException("El campo country no puede estar nulo ni vacío");
         if (Objects.isNull(req.getAddress()) || req.getAddress().isBlank())
-            throw new Exception("El campo address no puede estar nulo ni vacío");
-        // Verifica que el tipo de documento exista en la base de datos
+            throw new BadRequestException("El campo address no puede estar nulo ni vacío");
         DocumentType documentType = documentTypeRepository.findById(req.getDocumentTypeId())
-                .orElseThrow(() -> new Exception("El tipo de documento no existe"));
-        // Verifica que no exista otro usuario con el mismo email
+                .orElseThrow(() -> new NotFoundException("El tipo de documento no existe"));
+        // Duplicados → InternalServerErrorException
         if (userRepository.existsByEmail(req.getEmail()))
-            throw new Exception("Ya existe un usuario con el email ingresado");
-        // Verifica que no exista otro usuario con el mismo número y tipo de documento
+            throw new InternalServerErrorException("Ya existe un usuario con el email ingresado");
         if (userRepository.existsByDocumentNumberAndDocumentTypeId(req.getDocumentNumber(), req.getDocumentTypeId()))
-            throw new Exception("Ya existe un usuario con el documento y tipo de documento ingresados");
-        // Usa el mapper para construir la entidad User a partir del request
+            throw new InternalServerErrorException("Ya existe un usuario con el documento y tipo de documento ingresados");
         User user = UserMapper.createUserRequestToUser(req, documentType);
-        // Guarda el usuario en la base de datos
         userRepository.save(user);
-        // Retorna la respuesta mapeada del usuario creado
         return UserMapper.modelToUserResponse(user);
     }
 
@@ -127,56 +108,41 @@ public class UserServiceImpl implements UserService {
      * si este cambia, y verifica que el tipo de documento exista si se actualiza.
      */
     @Override
-    public UserResponse updateUser(Integer id, UpdateUserRequest req) throws Exception {
-        // Valida que el id no sea nulo y sea mayor a 0
-        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
-        // Busca el usuario; lanza excepción si no se encuentra
+    public UserResponse updateUser(Integer id, UpdateUserRequest req) {
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar un id válido");
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("Usuario no encontrado con el id: %d", id)));
-        // Actualiza el nombre si viene en el request y no está vacío
+                .orElseThrow(() -> new NotFoundException(String.format("Usuario no encontrado con el id: %d", id)));
         if (req.getFullName() != null && !req.getFullName().isBlank()) user.setFullName(req.getFullName());
-        // Actualiza el teléfono si viene en el request y no está vacío
         if (req.getPhone() != null && !req.getPhone().isBlank()) user.setPhone(req.getPhone());
-        // Actualiza el email si viene en el request, verificando que no esté en uso por otro usuario
         if (req.getEmail() != null && !req.getEmail().isBlank()) {
             if (!req.getEmail().equals(user.getEmail()) && userRepository.existsByEmail(req.getEmail()))
-                throw new Exception("Ya existe un usuario con el email ingresado");
+                throw new InternalServerErrorException("Ya existe un usuario con el email ingresado");
             user.setEmail(req.getEmail());
         }
-        // Actualiza el tipo de documento si viene en el request, verificando que exista
         if (req.getDocumentTypeId() != null && req.getDocumentTypeId() > 0) {
             DocumentType documentType = documentTypeRepository.findById(req.getDocumentTypeId())
-                    .orElseThrow(() -> new Exception("El tipo de documento no existe"));
+                    .orElseThrow(() -> new NotFoundException("El tipo de documento no existe"));
             user.setDocumentType(documentType);
         }
-        // Actualiza el número de documento si viene en el request y no está vacío
         if (req.getDocumentNumber() != null && !req.getDocumentNumber().isBlank()) user.setDocumentNumber(req.getDocumentNumber());
-        // Actualiza la fecha de nacimiento si viene en el request, parséndola al formato yyyy-MM-dd
         if (req.getBirthDate() != null && !req.getBirthDate().isBlank())
             user.setBirthDate(LocalDate.parse(req.getBirthDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-        // Actualiza el país si viene en el request y no está vacío
         if (req.getCountry() != null && !req.getCountry().isBlank()) user.setCountry(req.getCountry());
-        // Actualiza la dirección si viene en el request y no está vacía
         if (req.getAddress() != null && !req.getAddress().isBlank()) user.setAddress(req.getAddress());
-        // Guarda los cambios en la base de datos
         userRepository.save(user);
-        // Retorna la respuesta mapeada del usuario actualizado
         return UserMapper.modelToUserResponse(user);
     }
+
     /**
      * Elimina un User existente por su ID.
      * Lanza excepción si el ID es inválido o si el User no existe.
      */
     @Override
-    public DeleteUserResponse deleteUser(Integer id) throws Exception {
-        // Valida que el id no sea nulo y sea mayor a 0
-        if (id == null || id <= 0) throw new Exception("Debe ingresar un id válido");
-        // Busca el User; lanza excepción si no se encuentra
+    public DeleteUserResponse deleteUser(Integer id) {
+        if (id == null || id <= 0) throw new BadRequestException("Debe ingresar un id válido");
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new Exception(String.format("User no encontrado con el id: %d", id)));
-        // Elimina el registro de la base de datos
+                .orElseThrow(() -> new NotFoundException(String.format("User no encontrado con el id: %d", id)));
         userRepository.delete(user);
-        // Retorna la respuesta con mensaje de confirmación
         return new DeleteUserResponse("User con id " + id + " eliminado correctamente");
     }
 }

@@ -13,12 +13,13 @@ public interface DocumentTypeService {
     List<DocumentTypeResponse> getDocumentTypes();
 
     // Busca un tipo de documento por su ID
-    DocumentTypeResponse getDocumentTypeById(Integer id) throws Exception;
+    DocumentTypeResponse getDocumentTypeById(Integer id);
 
     // Crea un nuevo tipo de documento con los datos del request
-    DocumentTypeResponse createDocumentType(CreateDocumentTypeRequest createDocumentTypeRequest) throws Exception;
+    DocumentTypeResponse createDocumentType(CreateDocumentTypeRequest createDocumentTypeRequest);
 
     // Actualiza un tipo de documento existente por su ID
-    DocumentTypeResponse updateDocumentType(Integer id, UpdateDocumentTypeRequest updateDocumentTypeRequest) throws Exception;
-    DeleteDocumentTypeResponse deleteDocumentType(Integer id) throws Exception;
+    DocumentTypeResponse updateDocumentType(Integer id, UpdateDocumentTypeRequest updateDocumentTypeRequest);
+
+    DeleteDocumentTypeResponse deleteDocumentType(Integer id);
 }

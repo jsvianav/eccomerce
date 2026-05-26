@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface CartItemService {
     List<CartItemResponse> getCartItems();
-    CartItemResponse getCartItemById(Integer id) throws Exception;
-    CartItemResponse createCartItem(CreateCartItemRequest createCartItemRequest) throws Exception;
-    CartItemResponse updateCartItem(Integer id, UpdateCartItemRequest updateCartItemRequest) throws Exception;
-    DeleteCartItemResponse deleteCartItem(Integer id) throws Exception;
+    CartItemResponse getCartItemById(Integer id);
+    CartItemResponse createCartItem(CreateCartItemRequest createCartItemRequest);
+    CartItemResponse updateCartItem(Integer id, UpdateCartItemRequest updateCartItemRequest);
+    DeleteCartItemResponse deleteCartItem(Integer id);
 }

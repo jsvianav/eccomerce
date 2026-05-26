@@ -20,69 +20,39 @@ import java.util.List;
 @RequestMapping("/orderItem")
 public class OrderItemController {
 
-    // Inyección del servicio que contiene la lógica de negocio de items de orden
     @Autowired
     private OrderItemService orderItemService;
 
-    /**
-     * Retorna la lista completa de items de orden registrados.
-     * No requiere parámetros. Siempre retorna 200 OK.
-     */
+    /** Retorna la lista completa de items de orden registrados. */
     @GetMapping
     public ResponseEntity<List<OrderItemResponse>> getOrderItems() {
-        // Delega al servicio y envuelve el resultado en un 200 OK
         return ResponseEntity.ok(orderItemService.getOrderItems());
     }
 
-    /**
-     * Busca un item de orden por su ID.
-     * Retorna 200 OK si existe, o 400 Bad Request si el ID es inválido o no se encuentra.
-     */
+    /** Busca un item de orden por su ID. */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOrderItemById(@PathVariable Integer id) {
-        try {
-            // Intenta buscar el item; retorna 200 si existe
-            return ResponseEntity.ok(orderItemService.getOrderItemById(id));
-        } catch (Exception e) {
-            // Si el servicio lanza una excepción, retorna 400 con el mensaje de error
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<OrderItemResponse> getOrderItemById(@PathVariable Integer id) {
+        return ResponseEntity.ok(orderItemService.getOrderItemById(id));
     }
 
     /**
      * Agrega un nuevo producto a una orden existente.
-     * El lineTotal se calcula automáticamente (unitPriceSnapshot x quantity).
-     * Retorna 200 OK con el item creado, o 400 si los datos son inválidos.
+     * El lineTotal se calcula automáticamente (unitPriceSnapshot x quantity). Retorna 201 Created.
      */
     @PostMapping
-    public ResponseEntity<?> createOrderItem(@RequestBody CreateOrderItemRequest createOrderItemRequest) {
-        try {
-            // Pasa el request al servicio para que lo valide, calcule el total y persista
-            return ResponseEntity.ok(orderItemService.createOrderItem(createOrderItemRequest));
-        } catch (Exception e) {
-            // Retorna 400 con el mensaje de validación si algo falla
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<OrderItemResponse> createOrderItem(@RequestBody CreateOrderItemRequest createOrderItemRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderItemService.createOrderItem(createOrderItemRequest));
     }
 
-    /**
-     * Actualiza cantidad y/o precio unitario de un item de orden existente.
-     * El lineTotal se recalcula automáticamente al guardar.
-     */
+    /** Actualiza cantidad y/o precio unitario de un item de orden existente. */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOrderItem(@PathVariable Integer id, @RequestBody UpdateOrderItemRequest updateOrderItemRequest) {
-        try {
-            // Pasa el id y el request al servicio para que actualice y recalcule el total
-            return ResponseEntity.ok(orderItemService.updateOrderItem(id, updateOrderItemRequest));
-        } catch (Exception e) {
-            // Retorna 400 con el mensaje de error si la operación falla
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<OrderItemResponse> updateOrderItem(@PathVariable Integer id, @RequestBody UpdateOrderItemRequest updateOrderItemRequest) {
+        return ResponseEntity.ok(orderItemService.updateOrderItem(id, updateOrderItemRequest));
     }
 
+    /** Elimina un item de orden por su ID. */
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeleteOrderItemResponse> deleteOrderItem(
-            @PathVariable Integer id) throws Exception {
-        return new ResponseEntity<>(orderItemService.deleteOrderItem(id), HttpStatus.OK);
+    public ResponseEntity<DeleteOrderItemResponse> deleteOrderItem(@PathVariable Integer id) {
+        return ResponseEntity.ok(orderItemService.deleteOrderItem(id));
     }
 }

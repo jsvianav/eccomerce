@@ -21,69 +21,39 @@ import java.util.List;
 @RequestMapping("/inventory")
 public class InventoryController {
 
-    // Inyección del servicio que contiene la lógica de negocio de inventarios
     @Autowired
     private InventoryService inventoryService;
 
-    /**
-     * Retorna la lista completa de registros de inventario.
-     * No requiere parámetros. Siempre retorna 200 OK.
-     */
+    /** Retorna la lista completa de registros de inventario. */
     @GetMapping
     public ResponseEntity<List<InventoryResponse>> getInventories() {
-        // Delega al servicio y envuelve el resultado en un 200 OK
         return ResponseEntity.ok(inventoryService.getInventories());
     }
 
-    /**
-     * Busca un registro de inventario por su ID.
-     * Retorna 200 OK si existe, o 400 Bad Request si el ID es inválido o no se encuentra.
-     */
+    /** Busca un registro de inventario por su ID. */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getInventoryById(@PathVariable Integer id) {
-        try {
-            // Intenta buscar el inventario; retorna 200 si existe
-            return ResponseEntity.ok(inventoryService.getInventoryById(id));
-        } catch (Exception e) {
-            // Si el servicio lanza una excepción, retorna 400 con el mensaje de error
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<InventoryResponse> getInventoryById(@PathVariable Integer id) {
+        return ResponseEntity.ok(inventoryService.getInventoryById(id));
     }
 
     /**
      * Crea un nuevo registro de inventario para un producto.
-     * Solo se permite un inventario por producto (relación única 1 a 1).
-     * Retorna 200 OK con el inventario creado, o 400 si el producto ya tiene uno.
+     * Solo se permite un inventario por producto (relación única 1 a 1). Retorna 201 Created.
      */
     @PostMapping
-    public ResponseEntity<?> createInventory(@RequestBody CreateInventoryRequest createInventoryRequest) {
-        try {
-            // Pasa el request al servicio para que valide la unicidad y persista
-            return ResponseEntity.ok(inventoryService.createInventory(createInventoryRequest));
-        } catch (Exception e) {
-            // Retorna 400 con el mensaje de validación si algo falla
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<InventoryResponse> createInventory(@RequestBody CreateInventoryRequest createInventoryRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(inventoryService.createInventory(createInventoryRequest));
     }
 
-    /**
-     * Actualiza el stock de un inventario existente.
-     * Solo modifica el campo enviado en el body.
-     */
+    /** Actualiza el stock de un inventario existente. */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateInventory(@PathVariable Integer id, @RequestBody UpdateInventoryRequest updateInventoryRequest) {
-        try {
-            // Pasa el id y el request al servicio para que actualice el stock
-            return ResponseEntity.ok(inventoryService.updateInventory(id, updateInventoryRequest));
-        } catch (Exception e) {
-            // Retorna 400 con el mensaje de error si la operación falla
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<InventoryResponse> updateInventory(@PathVariable Integer id, @RequestBody UpdateInventoryRequest updateInventoryRequest) {
+        return ResponseEntity.ok(inventoryService.updateInventory(id, updateInventoryRequest));
     }
 
+    /** Elimina un inventario por su ID. */
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeleteInventoryResponse> deleteInventory(
-            @PathVariable Integer id) throws Exception {
-        return new ResponseEntity<>(inventoryService.deleteInventory(id), HttpStatus.OK);
+    public ResponseEntity<DeleteInventoryResponse> deleteInventory(@PathVariable Integer id) {
+        return ResponseEntity.ok(inventoryService.deleteInventory(id));
     }
 }

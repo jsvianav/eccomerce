@@ -20,69 +20,36 @@ import java.util.List;
 @RequestMapping("/cartItem")
 public class CartItemController {
 
-    // Inyección del servicio que contiene la lógica de negocio de items de carrito
     @Autowired
     private CartItemService cartItemService;
 
-    /**
-     * Retorna la lista completa de items de carrito registrados.
-     * No requiere parámetros. Siempre retorna 200 OK.
-     */
+    /** Retorna la lista completa de items de carrito registrados. */
     @GetMapping
     public ResponseEntity<List<CartItemResponse>> getCartItems() {
-        // Delega al servicio y envuelve el resultado en un 200 OK
         return ResponseEntity.ok(cartItemService.getCartItems());
     }
 
-    /**
-     * Busca un item de carrito por su ID.
-     * Retorna 200 OK si existe, o 400 Bad Request si el ID es inválido o no se encuentra.
-     */
+    /** Busca un item de carrito por su ID. */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCartItemById(@PathVariable Integer id) {
-        try {
-            // Intenta buscar el item; retorna 200 si existe
-            return ResponseEntity.ok(cartItemService.getCartItemById(id));
-        } catch (Exception e) {
-            // Si el servicio lanza una excepción, retorna 400 con el mensaje de error
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<CartItemResponse> getCartItemById(@PathVariable Integer id) {
+        return ResponseEntity.ok(cartItemService.getCartItemById(id));
     }
 
-    /**
-     * Agrega un nuevo producto a un carrito existente.
-     * Retorna 200 OK con el item creado, o 400 si los datos son inválidos
-     * o el producto ya estaba en ese carrito.
-     */
+    /** Agrega un nuevo producto a un carrito existente. Retorna 201 Created. */
     @PostMapping
-    public ResponseEntity<?> createCartItem(@RequestBody CreateCartItemRequest createCartItemRequest) {
-        try {
-            // Pasa el request al servicio para que lo valide y persista
-            return ResponseEntity.ok(cartItemService.createCartItem(createCartItemRequest));
-        } catch (Exception e) {
-            // Retorna 400 con el mensaje de validación si algo falla
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<CartItemResponse> createCartItem(@RequestBody CreateCartItemRequest createCartItemRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(cartItemService.createCartItem(createCartItemRequest));
     }
 
-    /**
-     * Actualiza la cantidad o el producto de un item de carrito existente.
-     * Solo modifica los campos enviados en el body.
-     */
+    /** Actualiza la cantidad o el producto de un item de carrito existente. */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCartItem(@PathVariable Integer id, @RequestBody UpdateCartItemRequest updateCartItemRequest) {
-        try {
-            // Pasa el id y el request al servicio para que actualice solo los campos recibidos
-            return ResponseEntity.ok(cartItemService.updateCartItem(id, updateCartItemRequest));
-        } catch (Exception e) {
-            // Retorna 400 con el mensaje de error si la operación falla
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<CartItemResponse> updateCartItem(@PathVariable Integer id, @RequestBody UpdateCartItemRequest updateCartItemRequest) {
+        return ResponseEntity.ok(cartItemService.updateCartItem(id, updateCartItemRequest));
     }
 
+    /** Elimina un item de carrito por su ID. */
     @DeleteMapping("/{id}")
-    public ResponseEntity<DeleteCartItemResponse> deleteCartItem(
-            @PathVariable Integer id) throws Exception {
-        return new ResponseEntity<>(cartItemService.deleteCartItem(id), HttpStatus.OK);
+    public ResponseEntity<DeleteCartItemResponse> deleteCartItem(@PathVariable Integer id) {
+        return ResponseEntity.ok(cartItemService.deleteCartItem(id));
     }
 }
