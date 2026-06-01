@@ -106,10 +106,10 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
         if (id == null || id <= 0) throw new BadRequestException("Debe ingresar un id válido");
         InventoryMovement movement = inventoryMovementRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Movimiento de inventario no encontrado con el id: %d", id)));
-        if (req.getQuantity() != null && req.getQuantity() > 0) movement.setQty(req.getQuantity());
-        if (req.getMovementType() != null && !req.getMovementType().isBlank()) {
+        if (req.getQty() != null && req.getQty() > 0) movement.setQty(req.getQty());
+        if (req.getType() != null && !req.getType().isBlank()) {
             try {
-                movement.setType(MovementType.valueOf(req.getMovementType().toUpperCase()));
+                movement.setType(MovementType.valueOf(req.getType().toUpperCase()));
             } catch (IllegalArgumentException e) {
                 throw new BadRequestException("El type debe ser DEBIT, CREDIT, RESERVE o RELEASE");
             }

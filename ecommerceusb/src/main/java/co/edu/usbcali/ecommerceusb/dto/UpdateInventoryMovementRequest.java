@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateInventoryMovementRequest {
-    private Integer quantity;
-    private String movementType;
-    private String reason;
+    private Integer qty;
+    private String type;
 }

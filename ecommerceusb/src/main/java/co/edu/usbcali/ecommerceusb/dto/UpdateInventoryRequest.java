@@ -10,6 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateInventoryRequest {
-    private Integer quantity;
-    private Integer minStock;
+    private Integer stock;
 }

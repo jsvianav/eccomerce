@@ -107,8 +107,8 @@ public class PaymentServiceImpl implements PaymentService {
                 throw new BadRequestException("El status debe ser SUCCEEDED o FAILED");
             }
         }
-        if (req.getPaymentMethod() != null && !req.getPaymentMethod().isBlank())
-            payment.setProviderRef(req.getPaymentMethod());
+        if (req.getProviderRef() != null && !req.getProviderRef().isBlank())
+            payment.setProviderRef(req.getProviderRef());
         return PaymentMapper.modelToPaymentResponse(paymentRepository.save(payment));
     }
 

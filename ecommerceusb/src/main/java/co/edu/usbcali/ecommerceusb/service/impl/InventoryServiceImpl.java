@@ -89,7 +89,7 @@ public class InventoryServiceImpl implements InventoryService {
         if (id == null || id <= 0) throw new BadRequestException("Debe ingresar un id válido");
         Inventory inventory = inventoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Inventario no encontrado con el id: %d", id)));
-        if (req.getQuantity() != null && req.getQuantity() >= 0) inventory.setStock(req.getQuantity());
+        if (req.getStock() != null && req.getStock() >= 0) inventory.setStock(req.getStock());
         inventory.setUpdatedAt(OffsetDateTime.now());
         return InventoryMapper.modelToInventoryResponse(inventoryRepository.save(inventory));
     }
