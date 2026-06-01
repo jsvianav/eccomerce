@@ -11,19 +11,48 @@ import {
   ArrowLeftRight,
   Users,
   Settings,
-  Store,
+  Link2,
 } from "lucide-react"
 
+/**
+ * EcommAdmin brand mark — E-shelves concept
+ * Three horizontal bars of decreasing width read as:
+ *   1. "E" letterform (EcommAdmin initial)
+ *   2. Store catalog hierarchy (full / shorter / full)
+ *   3. Dashboard row system
+ */
+function EShelvesLogo({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden
+    >
+      {/* Vertical spine */}
+      <rect x="2.5" y="2.5" width="1.5" height="11" rx="0.75" fill="currentColor"/>
+      {/* Top bar — full width */}
+      <rect x="2.5" y="2.5" width="11" height="1.5" rx="0.75" fill="currentColor"/>
+      {/* Mid bar — shorter (catalog hierarchy) */}
+      <rect x="2.5" y="7.25" width="7.5" height="1.5" rx="0.75" fill="currentColor"/>
+      {/* Bottom bar — full width */}
+      <rect x="2.5" y="12" width="11" height="1.5" rx="0.75" fill="currentColor"/>
+    </svg>
+  )
+}
+
 const navItems = [
-  { to: "/dashboard", label: "Dashboard",     icon: LayoutDashboard },
-  { to: "/products",  label: "Productos",      icon: Package         },
-  { to: "/categories",label: "Categorías",     icon: Tag             },
-  { to: "/carts",     label: "Carritos",       icon: ShoppingCart    },
-  { to: "/orders",    label: "Pedidos",        icon: ClipboardList   },
-  { to: "/payments",  label: "Pagos",          icon: CreditCard      },
-  { to: "/inventory", label: "Inventario",     icon: Warehouse       },
-  { to: "/movements", label: "Movimientos",    icon: ArrowLeftRight  },
-  { to: "/users",     label: "Usuarios",       icon: Users           },
+  { to: "/dashboard",          label: "Dashboard",        icon: LayoutDashboard },
+  { to: "/products",           label: "Productos",         icon: Package         },
+  { to: "/categories",         label: "Categorías",        icon: Tag             },
+  { to: "/product-categories", label: "Prod. — Categ.",   icon: Link2           },
+  { to: "/carts",              label: "Carritos",          icon: ShoppingCart    },
+  { to: "/orders",             label: "Pedidos",           icon: ClipboardList   },
+  { to: "/payments",           label: "Pagos",             icon: CreditCard      },
+  { to: "/inventory",          label: "Inventario",        icon: Warehouse       },
+  { to: "/movements",          label: "Movimientos",       icon: ArrowLeftRight  },
+  { to: "/users",              label: "Usuarios",          icon: Users           },
 ]
 
 const settingsItems = [
@@ -36,10 +65,10 @@ export function Sidebar() {
 
       {/* ── Logo (high-end-visual-design: nested pill logo island) ── */}
       <div className="flex h-14 items-center gap-2.5 px-4 border-b border-border/60">
-        {/* Double-bezel logo mark */}
+        {/* Brand mark — E-shelves logo */}
         <div className="relative flex h-7 w-7 items-center justify-center">
           <div className="absolute inset-0 rounded-lg bg-primary/10 ring-1 ring-primary/20" />
-          <Store className="relative h-3.5 w-3.5 text-primary" strokeWidth={2.25} />
+          <EShelvesLogo className="relative h-3.5 w-3.5 text-primary" />
         </div>
         <div className="min-w-0">
           <p className="text-[13px] font-bold tracking-tight text-foreground leading-none">

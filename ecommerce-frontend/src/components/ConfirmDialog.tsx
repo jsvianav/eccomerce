@@ -23,8 +23,8 @@ export function ConfirmDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <div className="flex items-center gap-3 mb-1">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-destructive/10">
+          <div className="flex items-center gap-2.5 mb-1">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-destructive/10 ring-1 ring-destructive/20">
               <TriangleAlert className="h-4 w-4 text-destructive" strokeWidth={2} />
             </div>
             <DialogTitle>{title}</DialogTitle>

@@ -1,26 +1,26 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { Plus, Pencil, Trash2, TrendingUp, TrendingDown, BookmarkCheck, BookmarkX } from "lucide-react"
+import { Plus, Pencil, Trash2, ArrowLeftRight } from "lucide-react"
 import { useInventoryMovements, useCreateInventoryMovement, useUpdateInventoryMovement, useDeleteInventoryMovement } from "@/hooks/useInventoryMovements"
 import type { InventoryMovementResponse, MovementType } from "@/types"
 import { PageHeader } from "@/components/PageHeader"
 import { DataTable } from "@/components/DataTable"
 import type { Column } from "@/components/DataTable"
 import { ConfirmDialog } from "@/components/ConfirmDialog"
+import { StatusBadge } from "@/components/StatusBadge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import type { ReactNode } from "react"
 
 const movementTypes: MovementType[] = ["DEBIT", "CREDIT", "RESERVE", "RELEASE"]
 
-const typeIconMap: Record<MovementType, ReactNode> = {
-  DEBIT: <TrendingDown className="h-4 w-4 text-red-500" />,
-  CREDIT: <TrendingUp className="h-4 w-4 text-green-500" />,
-  RESERVE: <BookmarkCheck className="h-4 w-4 text-blue-500" />,
-  RELEASE: <BookmarkX className="h-4 w-4 text-gray-500" />,
+const typeLabels: Record<MovementType, string> = {
+  DEBIT: "Débito",
+  CREDIT: "Crédito",
+  RESERVE: "Reserva",
+  RELEASE: "Liberado",
 }
 
 type FormValues = { productId: string; orderId: string; qty: string }
@@ -66,32 +66,66 @@ export default function InventoryMovementsPage() {
     }
   }
 
+  const isMutating = createMut.isPending || updateMut.isPending
+
   const columns: Column<InventoryMovementResponse>[] = [
-    { key: "id", header: "ID", className: "w-16" },
-    { key: "productId", header: "Producto ID" },
-    { key: "orderId", header: "Pedido ID" },
+    {
+      key: "id",
+      header: "ID",
+      className: "w-14",
+      render: (item) => (
+        <span className="tabular-nums text-[12px] text-muted-foreground">#{item.id}</span>
+      ),
+    },
+    {
+      key: "productId",
+      header: "Producto",
+      render: (item) => (
+        <span className="text-[13px] text-muted-foreground">#{item.productId}</span>
+      ),
+    },
+    {
+      key: "orderId",
+      header: "Pedido",
+      render: (item) => (
+        <span className="text-[13px] text-muted-foreground">#{item.orderId}</span>
+      ),
+    },
     {
       key: "type",
       header: "Tipo",
+      render: (item) => <StatusBadge status={item.type} />,
+    },
+    {
+      key: "qty",
+      header: "Cantidad",
       render: (item) => (
-        <div className="flex items-center gap-2">
-          {typeIconMap[item.type]}
-          <span>{item.type}</span>
-        </div>
+        <span className="tabular-nums font-semibold text-[13px] text-foreground">{item.qty}</span>
       ),
     },
-    { key: "qty", header: "Cantidad" },
     {
       key: "actions",
-      header: "Acciones",
-      className: "text-right",
+      header: "",
+      className: "w-20 text-right",
       render: (item) => (
-        <div className="flex items-center justify-end gap-2">
-          <Button variant="ghost" size="icon" onClick={() => openEdit(item)}>
-            <Pencil className="h-4 w-4" />
+        <div className="flex items-center justify-end gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground"
+            onClick={() => openEdit(item)}
+            title="Editar"
+          >
+            <Pencil className="h-3.5 w-3.5" strokeWidth={2} />
           </Button>
-          <Button variant="ghost" size="icon" onClick={() => setDeleteId(item.id)}>
-            <Trash2 className="h-4 w-4 text-destructive" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-muted-foreground hover:text-destructive"
+            onClick={() => setDeleteId(item.id)}
+            title="Eliminar"
+          >
+            <Trash2 className="h-3.5 w-3.5" strokeWidth={2} />
           </Button>
         </div>
       ),
@@ -104,9 +138,9 @@ export default function InventoryMovementsPage() {
         title="Movimientos de Inventario"
         description="Registra y consulta los movimientos de stock"
         action={
-          <Button onClick={openCreate}>
-            <Plus className="h-4 w-4" />
-            Nuevo Movimiento
+          <Button onClick={openCreate} size="sm">
+            <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+            Nuevo movimiento
           </Button>
         }
       />
@@ -115,59 +149,113 @@ export default function InventoryMovementsPage() {
         data={data}
         columns={columns}
         loading={isLoading}
-        emptyMessage="No hay movimientos registrados"
+        emptyMessage="No hay movimientos registrados. Cada entrada o salida de stock quedará registrada aquí."
+        emptyAction={
+          <Button size="sm" onClick={openCreate}>
+            <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+            Nuevo movimiento
+          </Button>
+        }
       />
 
+      {/* ── Create / Edit dialog ── */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editItem ? "Editar Movimiento" : "Nuevo Movimiento"}</DialogTitle>
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 ring-1 ring-primary/20">
+                <ArrowLeftRight className="h-4 w-4 text-primary" strokeWidth={2} />
+              </div>
+              <DialogTitle>
+                {editItem ? "Editar movimiento" : "Nuevo movimiento"}
+              </DialogTitle>
+            </div>
           </DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label>Producto ID *</Label>
-                <Input type="number" {...register("productId", { required: "Campo requerido" })} placeholder="1" />
-                {errors.productId && <p className="text-xs text-destructive">{errors.productId.message}</p>}
+              <div>
+                <Label htmlFor="mov-product">Producto ID</Label>
+                <Input
+                  id="mov-product"
+                  type="number"
+                  {...register("productId", { required: "Campo requerido" })}
+                  placeholder="1"
+                  aria-invalid={!!errors.productId}
+                />
+                {errors.productId && (
+                  <p className="mt-1 text-[11px] text-destructive">{errors.productId.message}</p>
+                )}
               </div>
-              <div className="space-y-1">
-                <Label>Pedido ID *</Label>
-                <Input type="number" {...register("orderId", { required: "Campo requerido" })} placeholder="1" />
-                {errors.orderId && <p className="text-xs text-destructive">{errors.orderId.message}</p>}
+              <div>
+                <Label htmlFor="mov-order">Pedido ID</Label>
+                <Input
+                  id="mov-order"
+                  type="number"
+                  {...register("orderId", { required: "Campo requerido" })}
+                  placeholder="1"
+                  aria-invalid={!!errors.orderId}
+                />
+                {errors.orderId && (
+                  <p className="mt-1 text-[11px] text-destructive">{errors.orderId.message}</p>
+                )}
               </div>
-              <div className="space-y-1">
-                <Label>Tipo *</Label>
+              <div>
+                <Label htmlFor="mov-type">Tipo</Label>
                 <Select value={typeVal} onValueChange={(v) => setTypeVal(v as MovementType)}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger id="mov-type">
+                    <SelectValue displayMap={typeLabels} />
+                  </SelectTrigger>
                   <SelectContent>
                     {movementTypes.map((t) => (
-                      <SelectItem key={t} value={t}>{t}</SelectItem>
+                      <SelectItem key={t} value={t}>{typeLabels[t]}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-1">
-                <Label>Cantidad *</Label>
-                <Input type="number" {...register("qty", { required: "Campo requerido" })} placeholder="1" />
-                {errors.qty && <p className="text-xs text-destructive">{errors.qty.message}</p>}
+              <div>
+                <Label htmlFor="mov-qty">Cantidad</Label>
+                <Input
+                  id="mov-qty"
+                  type="number"
+                  min="1"
+                  {...register("qty", { required: "Campo requerido", min: { value: 1, message: "Mínimo 1" } })}
+                  placeholder="1"
+                  aria-invalid={!!errors.qty}
+                />
+                {errors.qty && (
+                  <p className="mt-1 text-[11px] text-destructive">{errors.qty.message}</p>
+                )}
               </div>
             </div>
+
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancelar</Button>
-              <Button type="submit" loading={createMut.isPending || updateMut.isPending}>
-                {editItem ? "Guardar cambios" : "Crear"}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setDialogOpen(false)}
+                disabled={isMutating}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" size="sm" loading={isMutating}>
+                {editItem ? "Guardar cambios" : "Registrar movimiento"}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
+      {/* ── Delete confirm ── */}
       <ConfirmDialog
         open={deleteId !== null}
         onOpenChange={(v) => !v && setDeleteId(null)}
-        onConfirm={() => { if (deleteId !== null) deleteMut.mutate(deleteId, { onSuccess: () => setDeleteId(null) }) }}
-        title="Eliminar Movimiento"
-        description="¿Estás seguro de que deseas eliminar este movimiento?"
+        onConfirm={() => {
+          if (deleteId !== null) deleteMut.mutate(deleteId, { onSuccess: () => setDeleteId(null) })
+        }}
+        title="Eliminar movimiento"
+        description="¿Estás seguro de que deseas eliminar este movimiento de inventario?"
         loading={deleteMut.isPending}
       />
     </div>

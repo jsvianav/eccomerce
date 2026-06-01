@@ -5,7 +5,7 @@ import {
 } from "@/components/ui/table"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Input } from "@/components/ui/input"
-import { Search, Inbox } from "lucide-react"
+import { Search, Hash, Inbox } from "lucide-react"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface Column<T = any> {
@@ -30,32 +30,68 @@ export function DataTable<T extends object>({
   emptyMessage = "No hay datos disponibles",
   emptyAction,
 }: DataTableProps<T>) {
-  const [search, setSearch] = React.useState("")
+  const [search, setSearch]   = React.useState("")
+  const [idSearch, setIdSearch] = React.useState("")
 
   const filtered = React.useMemo(() => {
-    if (!search.trim()) return data
-    const q = search.toLowerCase()
-    return data.filter((item) =>
-      Object.values(item as Record<string, unknown>).some(
-        (v) => typeof v === "string" && v.toLowerCase().includes(q)
+    let result = data
+
+    // Filter by ID (exact match on numeric `id` field)
+    if (idSearch.trim()) {
+      const targetId = Number(idSearch.trim())
+      if (!isNaN(targetId) && targetId > 0) {
+        result = result.filter(
+          (item) => (item as Record<string, unknown>).id === targetId
+        )
+      }
+    }
+
+    // Filter by text (string fields)
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      result = result.filter((item) =>
+        Object.values(item as Record<string, unknown>).some(
+          (v) => typeof v === "string" && v.toLowerCase().includes(q)
+        )
       )
-    )
-  }, [data, search])
+    }
+
+    return result
+  }, [data, search, idSearch])
 
   return (
     <div className="space-y-3">
-      {/* Search — high-end-visual-design: spatial rhythm */}
-      <div className="relative w-64">
-        <Search
-          className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground"
-          strokeWidth={2}
-        />
-        <Input
-          placeholder="Buscar..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-8 h-8 text-[13px]"
-        />
+      {/* Search bar — ID filter + text filter side by side */}
+      <div className="flex items-center gap-2">
+        {/* ID search */}
+        <div className="relative w-28 shrink-0">
+          <Hash
+            className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground"
+            strokeWidth={2}
+          />
+          <Input
+            type="number"
+            min="1"
+            placeholder="ID"
+            value={idSearch}
+            onChange={(e) => setIdSearch(e.target.value)}
+            className="pl-7 h-8 text-[13px] tabular [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          />
+        </div>
+
+        {/* Text search */}
+        <div className="relative w-64">
+          <Search
+            className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground"
+            strokeWidth={2}
+          />
+          <Input
+            placeholder="Buscar..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-8 h-8 text-[13px]"
+          />
+        </div>
       </div>
 
       {/* Table — double-bezel wrapper (high-end-visual-design §4.A outer shell) */}
@@ -101,15 +137,17 @@ export function DataTable<T extends object>({
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm font-semibold text-foreground">
-                        {search ? "Sin resultados" : "Sin registros"}
+                        {search || idSearch ? "Sin resultados" : "Sin registros"}
                       </p>
                       <p className="text-[12px] text-muted-foreground max-w-xs">
-                        {search
+                        {idSearch
+                          ? `No existe un registro con ID #${idSearch}.`
+                          : search
                           ? `No se encontró "${search}". Prueba con otros términos.`
                           : emptyMessage}
                       </p>
                     </div>
-                    {!search && emptyAction && (
+                    {!search && !idSearch && emptyAction && (
                       <div className="mt-1">{emptyAction}</div>
                     )}
                   </div>
@@ -135,7 +173,7 @@ export function DataTable<T extends object>({
       {/* Footer count */}
       {!loading && filtered.length > 0 && (
         <p className="text-[11px] text-muted-foreground px-0.5">
-          {search
+          {(search || idSearch)
             ? `${filtered.length} de ${data.length} ${data.length === 1 ? "registro" : "registros"}`
             : `${data.length} ${data.length === 1 ? "registro" : "registros"} en total`}
         </p>

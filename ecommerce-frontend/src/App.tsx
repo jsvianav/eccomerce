@@ -12,6 +12,8 @@ import PaymentsPage from "@/pages/payments/PaymentsPage"
 import InventoryPage from "@/pages/inventory/InventoryPage"
 import InventoryMovementsPage from "@/pages/inventoryMovements/InventoryMovementsPage"
 import DocumentTypesPage from "@/pages/settings/DocumentTypesPage"
+import ProductCategoriesPage from "@/pages/productCategories/ProductCategoriesPage"
+import NotFoundPage from "@/pages/NotFoundPage"
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -33,8 +35,11 @@ export default function App() {
             <Route path="payments" element={<PaymentsPage />} />
             <Route path="inventory" element={<InventoryPage />} />
             <Route path="movements" element={<InventoryMovementsPage />} />
+            <Route path="product-categories" element={<ProductCategoriesPage />} />
             <Route path="settings" element={<DocumentTypesPage />} />
           </Route>
+          {/* 404 — outside the Layout shell so it gets full screen */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
       <Toaster position="bottom-right" richColors />

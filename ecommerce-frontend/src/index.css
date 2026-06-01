@@ -115,8 +115,37 @@
     line-height: 1.6;
   }
 
+  /* Prevent orphaned words in text (redesign-existing-projects) */
+  p, li, dd {
+    text-wrap: pretty;
+  }
+
+  /* Balance short headings so no single word dangles alone */
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+
   /* Tabular figures for data — Emil: unseen details compound */
   td, .tabular { font-variant-numeric: tabular-nums; }
+
+  /* Skip-to-content (accessibility — redesign-existing-projects §strategic-omissions) */
+  .skip-to-content {
+    position: fixed;
+    top: -100%;
+    left: 1rem;
+    z-index: 9999;
+    padding: 0.5rem 1rem;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border-radius: 0 0 0.5rem 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: top 150ms ease-out;
+  }
+  .skip-to-content:focus {
+    top: 0;
+  }
 }
 
 /* ─── Keyframes (Emil: nothing appears from nothing) ─── */
