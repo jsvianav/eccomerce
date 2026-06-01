@@ -48,6 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
     /**
      * Crea una nueva categoría en la base de datos.
      * Valida que el request no sea nulo y que el campo name no esté vacío.
+     * Si se envía parentId, busca y asigna la categoría padre.
      */
     @Override
     public CategoryResponse createCategory(CreateCategoryRequest req) {
@@ -55,22 +56,47 @@ public class CategoryServiceImpl implements CategoryService {
             throw new BadRequestException("El objeto createCategoryRequest no puede ser nulo");
         if (Objects.isNull(req.getName()) || req.getName().isBlank())
             throw new BadRequestException("El campo name no puede ser nulo ni vacío");
-        Category category = CategoryMapper.createCategoryRequestToCategory(req);
+
+        Category parent = null;
+        if (req.getParentId() != null) {
+            parent = categoryRepository.findById(req.getParentId())
+                    .orElseThrow(() -> new NotFoundException(
+                            String.format("Categoría padre no encontrada con el id: %d", req.getParentId())));
+        }
+
+        Category category = CategoryMapper.createCategoryRequestToCategory(req, parent);
         categoryRepository.save(category);
         return CategoryMapper.modelToCategoryResponse(category);
     }
 
     /**
-     * Actualiza el nombre de una categoría existente identificada por su ID.
-     * Solo modifica el nombre si viene en el request; lanza excepción si
-     * el ID es inválido o la categoría no existe.
+     * Actualiza nombre y/o categoría padre de una categoría existente.
+     * parentId null en el request elimina la relación padre (sin categoría padre).
+     * parentId con valor válido asigna esa categoría como padre.
      */
     @Override
     public CategoryResponse updateCategory(Integer id, UpdateCategoryRequest req) {
         if (id == null || id <= 0) throw new BadRequestException("Debe ingresar un id válido");
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Categoría no encontrada con el id: %d", id)));
-        if (req.getName() != null && !req.getName().isBlank()) category.setName(req.getName());
+
+        if (req.getName() != null && !req.getName().isBlank()) {
+            category.setName(req.getName());
+        }
+
+        // parentId presente en el request: null → quita padre, número → asigna padre
+        if (req.getParentId() != null) {
+            if (req.getParentId().equals(id)) {
+                throw new BadRequestException("Una categoría no puede ser su propio padre");
+            }
+            Category parent = categoryRepository.findById(req.getParentId())
+                    .orElseThrow(() -> new NotFoundException(
+                            String.format("Categoría padre no encontrada con el id: %d", req.getParentId())));
+            category.setParent(parent);
+        } else {
+            category.setParent(null);
+        }
+
         categoryRepository.save(category);
         return CategoryMapper.modelToCategoryResponse(category);
     }

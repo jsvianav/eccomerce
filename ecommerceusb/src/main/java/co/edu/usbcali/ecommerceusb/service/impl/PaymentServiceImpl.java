@@ -78,9 +78,9 @@ public class PaymentServiceImpl implements PaymentService {
             throw new BadRequestException("El campo idempotencyKey no puede estar nulo ni vacío");
         Order order = orderRepository.findById(createPaymentRequest.getOrderId())
                 .orElseThrow(() -> new NotFoundException("La orden no existe"));
-        // idempotencyKey duplicada → InternalServerErrorException
+        // idempotencyKey duplicada → BadRequestException (idempotencia: misma clave = mismo pago)
         if (paymentRepository.existsByIdempotencyKey(createPaymentRequest.getIdempotencyKey()))
-            throw new InternalServerErrorException("Ya existe un pago con el idempotencyKey ingresado");
+            throw new BadRequestException("Ya existe un pago registrado con esta clave de idempotencia");
         Payment payment = Payment.builder()
                 .order(order).status(paymentStatus)
                 .providerRef(createPaymentRequest.getProviderRef())

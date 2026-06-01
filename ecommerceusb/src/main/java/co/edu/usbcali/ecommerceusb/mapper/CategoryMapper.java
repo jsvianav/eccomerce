@@ -21,9 +21,10 @@ public class CategoryMapper {
         return categories.stream().map(CategoryMapper::modelToCategoryResponse).toList();
     }
 
-    public static Category createCategoryRequestToCategory(CreateCategoryRequest req) {
+    public static Category createCategoryRequestToCategory(CreateCategoryRequest req, Category parent) {
         return Category.builder()
                 .name(req.getName())
+                .parent(parent)
                 .createdAt(OffsetDateTime.now())
                 .build();
     }

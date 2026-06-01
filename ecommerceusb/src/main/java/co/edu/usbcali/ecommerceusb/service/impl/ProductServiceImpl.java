@@ -1,6 +1,7 @@
 package co.edu.usbcali.ecommerceusb.service.impl;
 
 import co.edu.usbcali.ecommerceusb.dto.CreateProductRequest;
+import java.math.BigDecimal;
 import co.edu.usbcali.ecommerceusb.dto.DeleteProductResponse;
 import co.edu.usbcali.ecommerceusb.dto.ProductResponse;
 import co.edu.usbcali.ecommerceusb.dto.UpdateProductRequest;
@@ -59,6 +60,8 @@ public class ProductServiceImpl implements ProductService {
             throw new BadRequestException("El campo name no puede ser nulo ni vacío");
         if (req.getPrice() == null)
             throw new BadRequestException("El campo price no puede ser nulo");
+        if (req.getPrice().compareTo(BigDecimal.ZERO) < 0)
+            throw new BadRequestException("El campo price no puede ser negativo");
         Product product = ProductMapper.createProductRequestToProduct(req);
         productRepository.save(product);
         return ProductMapper.modelToProductResponse(product);
@@ -76,7 +79,11 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new NotFoundException(String.format("Producto no encontrado con el id: %d", id)));
         if (req.getName() != null && !req.getName().isBlank()) product.setName(req.getName());
         if (req.getDescription() != null && !req.getDescription().isBlank()) product.setDescription(req.getDescription());
-        if (req.getPrice() != null) product.setPrice(req.getPrice());
+        if (req.getPrice() != null) {
+            if (req.getPrice().compareTo(BigDecimal.ZERO) < 0)
+                throw new BadRequestException("El campo price no puede ser negativo");
+            product.setPrice(req.getPrice());
+        }
         if (req.getAvailable() != null) product.setAvailable(req.getAvailable());
         product.setUpdatedAt(OffsetDateTime.now());
         productRepository.save(product);

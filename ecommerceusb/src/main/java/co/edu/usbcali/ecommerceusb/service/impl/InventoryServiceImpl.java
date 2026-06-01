@@ -68,9 +68,9 @@ public class InventoryServiceImpl implements InventoryService {
             throw new BadRequestException("El campo stock no puede ser nulo ni negativo");
         Product product = productRepository.findById(createInventoryRequest.getProductId())
                 .orElseThrow(() -> new NotFoundException("El producto no existe"));
-        // Inventario duplicado para el mismo producto → InternalServerErrorException
+        // Inventario duplicado para el mismo producto → BadRequestException (409 semántico, 400 HTTP)
         if (inventoryRepository.existsByProductId(createInventoryRequest.getProductId()))
-            throw new InternalServerErrorException("Ya existe un inventario para el producto ingresado");
+            throw new BadRequestException("Ya existe un inventario registrado para este producto");
         Inventory inventory = Inventory.builder()
                 .product(product)
                 .stock(createInventoryRequest.getStock())
